@@ -1,8 +1,15 @@
-// Exact node exports from mealprep_design. See README.md for source nodes.
 export const assets = {
-  bag: require('./bag.png'),
-  back: require('./back.png'),
-  clock: require('./clock.png'),
-  user: require('./user.png'),
-  cash: require('./cash.png'),
+  bag: require("./bag.png"),
+  back: require("./back.png"),
+  clock: require("./clock.png"),
+  user: require("./user.png"),
+  cash: require("./cash.png"),
+  apple: require("./apple.png"),
+  cheese: require("./cheese.png"),
+  corn: require("./corn.png"),
+  eggplant: require("./eggplant.png"),
+  tomato: require("./tomato.png"),
+  carrot: require("./carrot.png"),
+  steak: require("./steak.png"),
+  avocado: require("./avocado.png"),
 };
