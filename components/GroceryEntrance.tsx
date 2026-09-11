@@ -37,6 +37,7 @@ export function GroceryEntrance() {
   const jump = useRef(new Animated.Value(0)).current;
   const squash = useRef(new Animated.Value(0)).current;
   const tilt = useRef(new Animated.Value(0)).current;
+  const settle = useRef(new Animated.Value(0)).current;
   const food = useRef(FOODS.map(() => new Animated.Value(0))).current;
 
   useFocusEffect(
@@ -55,11 +56,13 @@ export function GroceryEntrance() {
         jump.setValue(0);
         squash.setValue(0);
         tilt.setValue(0);
+        settle.setValue(0);
         food.forEach((value) => value.setValue(1));
       };
       jump.setValue(0);
       squash.setValue(0);
       tilt.setValue(0);
+      settle.setValue(0);
       food.forEach((value) => value.setValue(0));
       const start = (reduced: boolean) => {
         if (!active) return;
@@ -92,6 +95,9 @@ export function GroceryEntrance() {
             timing(squash, 0.55, 115),
             timing(tilt, -0.14, 115),
           ]),
+          // The final settle carries the bag down toward the CTA, so the
+          // bounce visibly finishes at the button instead of snapping back.
+          timing(settle, 1, 240, Easing.out(Easing.cubic)),
           // Launch only on impact. The opaque bag front occludes the starting positions.
           Animated.parallel([
             Animated.spring(squash, {
@@ -150,7 +156,7 @@ export function GroceryEntrance() {
         subscription?.remove();
         media?.removeEventListener("change", onMedia);
       };
-    }, [jump, squash, tilt, food]),
+    }, [jump, squash, tilt, settle, food]),
   );
 
   const { width } = useWindowDimensions();
@@ -179,6 +185,12 @@ export function GroceryEntrance() {
                   translateY: jump.interpolate({
                     inputRange: [0, 1],
                     outputRange: [0, -ENTRANCE.jumpHeight],
+                  }),
+                },
+                {
+                  translateY: settle.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 72],
                   }),
                 },
                 {
