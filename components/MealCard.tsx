@@ -11,13 +11,18 @@ function Metadata({ source, children }: { source: ImageSourcePropType; children:
 
 function fallbackImage(recipeName: string): ImageSourcePropType {
   const name = recipeName.toLowerCase();
-  if (name.includes('fish')) return assets.fish;
-  if (name.includes('pasta')) return assets.pasta;
-  if (name.includes('avocado')) return assets.avocado;
-  if (name.includes('tomato')) return assets.tomato;
-  if (name.includes('eggplant')) return assets.eggplant;
-  if (name.includes('carrot')) return assets.carrot;
-  return assets.corn;
+  const photo = name.includes('fish')
+    ? 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=900&q=85'
+    : name.includes('pasta')
+      ? 'https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?auto=format&fit=crop&w=900&q=85'
+      : name.includes('avocado')
+        ? 'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&w=900&q=85'
+        : name.includes('tomato')
+          ? 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=85'
+          : name.includes('eggplant')
+            ? 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=900&q=85'
+            : 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=85';
+  return { uri: photo };
 }
 
 export function MealCard({ meal }: { meal: Meal }) {
