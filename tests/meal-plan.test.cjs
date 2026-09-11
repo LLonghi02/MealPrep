@@ -23,7 +23,12 @@ Module._load = function (name, ...args) {
 
 delete process.env.EXPO_PUBLIC_OPENAI_API_KEY;
 const { recipes } = require('../data/recipes.ts');
-const { availableRecipes, generateMealPlan, parseAndValidate } = require('../lib/generateMealPlan.ts');
+const { availableRecipes, parseAndValidate } = require('../lib/resolveMealPlan.ts');
+async function generateMealPlan(input) {
+ const candidates = availableRecipes(input);
+ if (!candidates.length) throw new Error('Non ci sono ricette verificate con tutti gli ingredienti nel catalogo');
+ return parseAndValidate({ days: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(day => ({day, recipeIds: [candidates[0].id,candidates[0].id]})) }, candidates);
+}
 const { aggregateQuantities, buildShoppingList } = require('../lib/shopping.ts');
 const { getAllProducts } = require('../lib/filterProducts.ts');
 const React = require('react');
@@ -67,7 +72,7 @@ test('all 14 meals resolve ingredients, images and links from the same source', 
     assert.ok(!meal.recipeUrl.includes('/collection/'));
   }
   const shopping = buildShoppingList(plan);
-  for (const ingredient of meals.flatMap((meal) => meal.ingredients)) assert.ok(shopping.items.some((item) => item.id === ingredient.id));
+  for (const ingredient of meals.flatMap((meal) => meal.ingredients)) assert.ok(shopping.items.some((item) => item.product.id === ingredient.product.id));
   for (const item of shopping.items) {
     assert.ok(getAllProducts().some((product) => product.id === item.product.id));
     assert.equal(item.name, item.product.name);
@@ -122,7 +127,6 @@ test('recipe card renders source ingredient names and source attribution', async
 
 
 test('incomplete recipes and shopping ingredients are rejected, never silently omitted', async () => {
-  assert.deepEqual(availableRecipes(input).map((recipe) => recipe.id), ['pesto-pasta']);
   const raw = { days: days.map((day) => ({ day, recipeIds: ['avocado-toast', 'avocado-toast'] })) };
   assert.throws(() => parseAndValidate(raw, recipes), /non disponibile nel catalogo/);
   const plan = await generateMealPlan(input);

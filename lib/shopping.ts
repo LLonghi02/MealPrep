@@ -1,5 +1,6 @@
 import type { MealPlan, ShoppingItem } from './types';
 import { getAllProducts } from './filterProducts';
+import { ingredientPackFraction } from './cost';
 
 export function aggregateQuantities(quantities: string[]): string {
   const groups = new Map<string, { amount: number; unit: string }>();
@@ -31,15 +32,18 @@ export function buildShoppingList(plan: MealPlan): { items: ShoppingItem[]; tota
   for (const ingredient of plan.days.flatMap((day) => day.meals).flatMap((meal) => meal.ingredients)) {
     const product = productsById.get(ingredient.product?.id);
     if (!product || !Number.isFinite(product.price?.amount)) throw new Error('Shopping list ingredients must belong to the product catalog.');
-    const current = map.get(ingredient.id);
-    if (current) current.quantities.push(ingredient.quantityLabel);
-    else map.set(ingredient.id, { id: ingredient.id, name: product.name, product, quantities: [ingredient.quantityLabel] });
+    const current = map.get(product.id);
+    const fraction = ingredientPackFraction({ ...ingredient, product });
+    if (current) { current.quantities.push(ingredient.quantityLabel); current.packs! += fraction; }
+    else map.set(product.id, { id: product.id, name: product.name, product, quantities: [ingredient.quantityLabel], packs: fraction });
   }
   const items = [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
-  const products = new Map(items.map((item) => [item.product.id, item.product]));
+  for (const item of items) {
+    item.packs = Math.max(1, Math.ceil(item.packs! - 0.000001));
+    item.totalPrice = Number((item.packs * item.product.price.amount).toFixed(2));
+  }
   return {
     items,
-    // Reference pack subtotal, not a guarantee that one pack covers the week.
-    total: Number([...products.values()].reduce((sum, product) => sum + product.price.amount, 0).toFixed(2)),
+    total: Number(items.reduce((sum, item) => sum + item.totalPrice!, 0).toFixed(2)),
   };
 }

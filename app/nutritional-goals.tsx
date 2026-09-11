@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
 import { OnboardingScreen, optionLayout } from "../components/OnboardingScreen";
 import { OptionChip } from "../components/OptionChip";
 import { generateMealPlan } from "../lib/generateMealPlan";
@@ -101,6 +101,11 @@ export default function NutritionalGoalsScreen() {
           </View>
         ))}
       </View>
+      {loading && (
+        <Text style={{ marginTop: 20 }} accessibilityLiveRegion="polite">
+          Searching the web and checking recipes against your products. This may take a few minutes.
+        </Text>
+      )}
     </OnboardingScreen>
   );
 }

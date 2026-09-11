@@ -12,6 +12,8 @@ interface AppState {
   nutritionalGoals: NutritionalGoal[];
   favoriteRecipes: string[];
   excludedProductIds: string[];
+  recipePreferences: string;
+  setRecipePreferences: (value: string) => void;
   dietaryConfirmed: boolean;
   nutritionConfirmed: boolean;
   setBudget: (value: number) => void;
@@ -39,6 +41,7 @@ const initialState = {
   nutritionalGoals: ['none'] as NutritionalGoal[],
   favoriteRecipes: [],
   excludedProductIds: [],
+  recipePreferences: '',
   mealPlan: null,
   isGenerating: false,
   generationError: null,
@@ -48,6 +51,7 @@ export const useAppStore = create<AppState>((set) => ({
   ...initialState,
 
   setBudget: (value) => set({ budget: value }),
+  setRecipePreferences: (value) => set({ recipePreferences: value }),
   toggleDietaryNeed: (value) => set((state) => ({
     dietaryNeeds: value === 'none'
       ? ['none']

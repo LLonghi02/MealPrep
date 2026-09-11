@@ -52,6 +52,9 @@ export interface Ingredient {
   name: string;
   product: Product;
   quantityLabel: string; // es. "200 g", "2 pz"
+  amount?: number;
+  unit?: 'g' | 'ml' | 'piece';
+  sourceIngredient?: string;
 }
 
 export interface Meal {
@@ -77,7 +80,9 @@ export interface DayPlan {
 export interface MealPlan {
   weeklyCost: number;
   days: DayPlan[];
-  source?: 'demo' | 'llm';
+  source?: 'demo' | 'llm' | 'web';
+  distinctRecipes?: number;
+  searchedSources?: number;
 }
 
 export interface OnboardingState {
@@ -93,4 +98,6 @@ export interface ShoppingItem {
   name: string;
   product: Product;
   quantities: string[];
+  packs?: number;
+  totalPrice?: number;
 }

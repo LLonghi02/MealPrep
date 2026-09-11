@@ -21,19 +21,19 @@ export function ShoppingList({ items, total, onRemove, refreshing }: { items: Sh
         <Text style={s.cardKicker}>WEEKLY PANTRY</Text>
         <Text style={s.shoppingTitle}>Shopping list</Text>
       </View>
-      <View style={s.totalBadge}><Text style={s.totalLabel}>PACK PRICES</Text><Text style={s.totalValue}>€{total.toFixed(2)}</Text></View>
+      <View style={s.totalBadge}><Text style={s.totalLabel}>WEEKLY TOTAL</Text><Text style={s.totalValue}>€{total.toFixed(2)}</Text></View>
     </View>
     <Text style={s.shoppingHint}>{refreshing ? 'Updating your plan…' : 'Aggregated quantities for all 14 recipes. Remove anything you do not want.'}</Text>
     <View style={s.shoppingItems}>
       {items.map((item) => <View key={item.id} style={s.shoppingRow}>
         <View style={s.shoppingDot} />
         <Text style={s.shoppingProduct} numberOfLines={1} ellipsizeMode="middle" accessibilityLabel={`${item.name} · ${aggregateQuantities(item.quantities)}`}>{item.name} · {aggregateQuantities(item.quantities)}</Text>
-        <Text style={s.shoppingPrice}>€{item.product.price.amount.toFixed(2)}</Text>
+        <Text style={s.shoppingPrice}>€{(item.totalPrice ?? item.product.price.amount).toFixed(2)}</Text>
         <Pressable disabled={refreshing} onPress={() => onRemove(item.id)} style={s.removeButton} accessibilityRole="button" accessibilityLabel={`Remove ${item.name}`}><Text style={s.removeText}>×</Text></Pressable>
       </View>)}
     </View>
-      <View style={s.totalRow}><Text style={s.totalRowLabel}>Pack subtotal</Text><Text style={s.totalRowValue}>€{total.toFixed(2)}</Text></View>
-      <Text style={s.shoppingHint}>Catalog price per pack. Check pack sizes against the weekly quantities above.</Text>
+      <View style={s.totalRow}><Text style={s.totalRowLabel}>Estimated shopping total</Text><Text style={s.totalRowValue}>€{total.toFixed(2)}</Text></View>
+      <Text style={s.shoppingHint}>Catalog prices for the packs needed across the week. Quantities are scaled to one serving per meal.</Text>
   </View>;
 }
 
@@ -85,9 +85,10 @@ export default function MealPlanScreen() {
   return <Screen green>
     <View style={s.page}>
       <View style={s.hero}>
-        <View style={s.eyebrowRow}><Text style={s.eyebrow}>YOUR WEEKLY MEAL PLAN</Text><Text style={s.weekCost}>€{shopping.total.toFixed(2)} <Text style={s.weekCostUnit}>known packs</Text></Text></View>
+        <View style={s.eyebrowRow}><Text style={s.eyebrow}>YOUR WEEKLY MEAL PLAN</Text><Text style={s.weekCost}>€{shopping.total.toFixed(2)} <Text style={s.weekCostUnit}>/ week</Text></Text></View>
         <Text style={s.title}>Enjoy your meal!</Text><Text style={s.subtitle}>Two meals per day, with complete recipes and ready-to-shop ingredients.</Text>
         {plan.source === 'demo' && <View style={s.demoBadge}><Text style={s.demoBadgeText}>DEMO PLAN · SAMPLE RECIPES</Text></View>}
+        {plan.source === 'web' && <View style={s.demoBadge}><Text style={s.demoBadgeText}>{plan.distinctRecipes} DIFFERENT RECIPES · WEB SOURCES</Text></View>}
         <Pressable onPress={() => setShowShopping((visible) => !visible)} style={s.shoppingToggle} accessibilityRole="button" accessibilityLabel={showShopping ? 'Show recipes' : 'Show shopping list'}>
           <Text style={s.shoppingToggleText}>{showShopping ? 'View recipes' : 'View shopping list'}</Text>
         </Pressable>

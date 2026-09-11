@@ -36,6 +36,16 @@ const aliases: Record<string, string> = {
   fagioli: 'bean', beans: 'bean', piselli: 'pea', peas: 'pea',
   tonno: 'tuna', salmone: 'salmon', uova: 'egg', eggs: 'egg',
   burro: 'butter', latte: 'milk', riso: 'rice', pollo: 'chicken',
+  olio: 'oil', oliva: 'olive', extravergine: 'virgin', basilico: 'basil',
+  farina: 'flour', zucchero: 'sugar', sale: 'salt', pepe: 'pepper',
+  aglio: 'garlic', cipolla: 'onion', cipolle: 'onion', patate: 'potato',
+  patata: 'potato', zucchine: 'zucchini', formaggio: 'cheese',
+  panna: 'cream', lenticchie: 'lentil', lentils: 'lentil', fagiolini: 'bean',
+  carote: 'carrot', carota: 'carrot', limone: 'lemon', limoni: 'lemon',
+  mandorle: 'almond', almonds: 'almond', noci: 'walnut', walnuts: 'walnut',
+  funghi: 'mushroom', mushrooms: 'mushroom', pane: 'bread',
+  pangrattato: 'breadcrumbs', prezzemolo: 'parsley', rosmarino: 'rosemary',
+  pelati: 'tomato', passata: 'tomato', mais: 'corn', brodo: 'stock',
 };
 const stop = new Set(['g', 'kg', 'ml', 'l', 'cup', 'cups', 'tbsp', 'tsp', 'of', 'and', 'or', 'a', 'the', 'to', 'for', 'with', 'di', 'e', 'con', 'fresh', 'organic', 'optional', 'chopped', 'grated', 'large', 'small', 'pack']);
 function tokens(value: string): string[] {

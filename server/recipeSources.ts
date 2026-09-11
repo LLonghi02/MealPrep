@@ -15,6 +15,10 @@ export interface SourceRecipe {
   ingredients: string[]; instructions: string[];
 }
 
+export function isOptionalIngredient(line: string): boolean {
+  return /\boptional\b|\bfacoltativ[oaie]\b/i.test(line);
+}
+
 export function isRecipeUrl(value: string): boolean {
   try {
     const url = new URL(value);
@@ -61,8 +65,10 @@ export function extractRecipe(html: string, url: string): SourceRecipe | null {
   const ingredients = Array.isArray(node.recipeIngredient) ? node.recipeIngredient.map(plain).filter(Boolean) : [];
   const steps = instructions(node.recipeInstructions).filter(Boolean);
   const image = [node.image].flat()[0];
+  const imageValue = typeof image === 'string' ? image : image?.url || image?.contentUrl;
+  if (typeof imageValue !== 'string' || !imageValue.trim()) return null;
   let imageUrl: string;
-  try { imageUrl = new URL(typeof image === 'string' ? image : image?.url || image?.contentUrl, url).href; }
+  try { imageUrl = new URL(imageValue, url).href; }
   catch { return null; }
   const servings = Number(String([node.recipeYield].flat()[0]).match(/\d+(?:\.\d+)?/)?.[0]);
   const minutes = duration(node.totalTime) || duration(node.prepTime) + duration(node.cookTime);
