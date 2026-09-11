@@ -20,16 +20,16 @@ export const ENTRANCE = {
   stagger: 70,
 };
 const FOODS = [
-  // Keep the stream narrow: the groceries climb out of the bag vertically
-  // instead of fanning across the illustration.
-  { key: "apple", image: assets.apple, x: -14, y: -330, angle: -12 },
-  { key: "cheese", image: assets.cheese, x: 12, y: -285, angle: 14 },
-  { key: "corn", image: assets.corn, x: -9, y: -240, angle: -10 },
-  { key: "eggplant", image: assets.eggplant, x: 15, y: -195, angle: 12 },
-  { key: "tomato", image: assets.tomato, x: -12, y: -150, angle: -16 },
-  { key: "carrot", image: assets.carrot, x: 10, y: -105, angle: 16 },
-  { key: "steak", image: assets.steak, x: -8, y: -60, angle: -12 },
-  { key: "avocado", image: assets.avocado, x: 8, y: -15, angle: 10 },
+  // Final positions form a soft burst: each item first rises from the mouth,
+  // then travels to its own left/right/up destination.
+  { key: "apple", image: assets.apple, x: -104, y: -110, angle: -12 },
+  { key: "cheese", image: assets.cheese, x: -147, y: 10, angle: -16 },
+  { key: "corn", image: assets.corn, x: -99, y: 148, angle: -14 },
+  { key: "eggplant", image: assets.eggplant, x: 22, y: 185, angle: 12 },
+  { key: "tomato", image: assets.tomato, x: 132, y: 128, angle: 16 },
+  { key: "carrot", image: assets.carrot, x: 140, y: -23, angle: 18 },
+  { key: "steak", image: assets.steak, x: 62, y: -127, angle: 10 },
+  { key: "avocado", image: assets.avocado, x: -22, y: -148, angle: -2 },
 ] as const;
 const driver = { useNativeDriver: Platform.OS !== "web", isInteraction: false };
 
@@ -209,13 +209,14 @@ export function GroceryEntrance() {
             const progress = food[index];
             const inputRange = Array.from({ length: 41 }, (_, i) => i / 40);
             const horizontal = inputRange.map((t) => {
-              // A tiny side-to-side drift keeps each item alive without
-              // turning the vertical stream back into a horizontal fan.
+              // Items stay hidden behind the bag until they have cleared its
+              // opening, then arc toward their individual left/right landing.
               const u = Math.max(0, (t - 0.12) / 0.88);
               return item.x * (1 - Math.pow(1 - u, 3));
             });
-            // Every grocery follows the same upward lane, with only a small
-            // individual offset so the launch reads as a vertical stream.
+            // The shared first control point makes the groceries visibly
+            // launch out of the opening; each final y gives a different
+            // upward, sideways, or lower arc instead of a pop-in.
             const vertical = inputRange.map((t) => {
               const u = 1 - Math.pow(1 - t, 2);
               return (
