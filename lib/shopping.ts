@@ -1,4 +1,5 @@
 import type { MealPlan, ShoppingItem } from './types';
+import { getAllProducts } from './filterProducts';
 
 export function aggregateQuantities(quantities: string[]): string {
   const groups = new Map<string, { amount: number; unit: string }>();
@@ -24,19 +25,21 @@ export function aggregateQuantities(quantities: string[]): string {
     .concat([...unmatched].map(([label, count]) => count > 1 ? `${label} (${count} recipes)` : label)).join(' + ');
 }
 
-export function buildShoppingList(plan: MealPlan): { items: ShoppingItem[]; total: number; partial: boolean } {
+export function buildShoppingList(plan: MealPlan): { items: ShoppingItem[]; total: number } {
   const map = new Map<string, ShoppingItem>();
+  const productsById = new Map(getAllProducts().map((product) => [product.id, product]));
   for (const ingredient of plan.days.flatMap((day) => day.meals).flatMap((meal) => meal.ingredients)) {
+    const product = productsById.get(ingredient.product?.id);
+    if (!product || !Number.isFinite(product.price?.amount)) throw new Error('Shopping list ingredients must belong to the product catalog.');
     const current = map.get(ingredient.id);
     if (current) current.quantities.push(ingredient.quantityLabel);
-    else map.set(ingredient.id, { id: ingredient.id, name: ingredient.name, product: ingredient.product, quantities: [ingredient.quantityLabel] });
+    else map.set(ingredient.id, { id: ingredient.id, name: product.name, product, quantities: [ingredient.quantityLabel] });
   }
   const items = [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
-  const products = new Map(items.flatMap((item) => item.product ? [[item.product.id, item.product] as const] : []));
+  const products = new Map(items.map((item) => [item.product.id, item.product]));
   return {
     items,
     // Reference pack subtotal, not a guarantee that one pack covers the week.
     total: Number([...products.values()].reduce((sum, product) => sum + product.price.amount, 0).toFixed(2)),
-    partial: items.some((item) => !item.product),
   };
 }

@@ -21,23 +21,19 @@ export function ShoppingList({ items, total, onRemove, refreshing }: { items: Sh
         <Text style={s.cardKicker}>WEEKLY PANTRY</Text>
         <Text style={s.shoppingTitle}>Shopping list</Text>
       </View>
-      <View style={s.totalBadge}><Text style={s.totalLabel}>KNOWN PACK PRICES</Text><Text style={s.totalValue}>€{total.toFixed(2)}</Text></View>
+      <View style={s.totalBadge}><Text style={s.totalLabel}>PACK PRICES</Text><Text style={s.totalValue}>€{total.toFixed(2)}</Text></View>
     </View>
     <Text style={s.shoppingHint}>{refreshing ? 'Updating your plan…' : 'Aggregated quantities for all 14 recipes. Remove anything you do not want.'}</Text>
     <View style={s.shoppingItems}>
       {items.map((item) => <View key={item.id} style={s.shoppingRow}>
         <View style={s.shoppingDot} />
-        <View style={{ flex: 1, gap: 3 }}>
-          <Text style={s.shoppingProduct}>{item.name}</Text>
-          <Text style={s.shoppingHint}>{aggregateQuantities(item.quantities)}</Text>
-          {!item.product && <Text style={s.shoppingHint}>Price unavailable</Text>}
-        </View>
-        <Text style={s.shoppingPrice}>{item.product ? `€${item.product.price.amount.toFixed(2)}` : '—'}</Text>
+        <Text style={s.shoppingProduct} numberOfLines={1} ellipsizeMode="middle" accessibilityLabel={`${item.name} · ${aggregateQuantities(item.quantities)}`}>{item.name} · {aggregateQuantities(item.quantities)}</Text>
+        <Text style={s.shoppingPrice}>€{item.product.price.amount.toFixed(2)}</Text>
         <Pressable disabled={refreshing} onPress={() => onRemove(item.id)} style={s.removeButton} accessibilityRole="button" accessibilityLabel={`Remove ${item.name}`}><Text style={s.removeText}>×</Text></Pressable>
       </View>)}
     </View>
-      <View style={s.totalRow}><Text style={s.totalRowLabel}>Known pack subtotal</Text><Text style={s.totalRowValue}>€{total.toFixed(2)}</Text></View>
-      <Text style={s.shoppingHint}>One pack per matched product. Check pack sizes against the quantities above; items without a price are excluded from this subtotal.</Text>
+      <View style={s.totalRow}><Text style={s.totalRowLabel}>Pack subtotal</Text><Text style={s.totalRowValue}>€{total.toFixed(2)}</Text></View>
+      <Text style={s.shoppingHint}>Catalog price per pack. Check pack sizes against the weekly quantities above.</Text>
   </View>;
 }
 
@@ -53,7 +49,11 @@ export default function MealPlanScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const selectedDay = DAYS[index];
   const selectedPlan = useMemo(() => plan?.days.find((day) => day.day === selectedDay), [plan, selectedDay]);
-  const shopping = useMemo(() => plan ? buildShoppingList(plan) : { items: [], total: 0, partial: false }, [plan]);
+  const shopping = useMemo(() => {
+    if (!plan) return { items: [], total: 0, invalid: false };
+    try { return { ...buildShoppingList(plan), invalid: false }; }
+    catch { return { items: [], total: 0, invalid: true }; }
+  }, [plan]);
 
   const removeFromShoppingList = async (productId: string) => {
     if (refreshing) return;
@@ -73,9 +73,9 @@ export default function MealPlanScreen() {
     }
   };
 
-  if (!plan) return <Screen><View style={s.empty}>
+  if (!plan || shopping.invalid) return <Screen><View style={s.empty}>
     <Text style={s.emptyEyebrow}>YOUR WEEKLY MEAL PLAN</Text><Text style={s.emptyTitle}>Your plan is waiting.</Text>
-    <Text style={s.emptyText}>{error || 'Complete the setup to receive recipes tailored to your preferences.'}</Text>
+    <Text style={s.emptyText}>{shopping.invalid ? 'This older plan contains ingredients outside the catalog. Create a new plan to update it.' : error || 'Complete the setup to receive recipes tailored to your preferences.'}</Text>
     <Button title="Create my plan" onPress={() => router.replace('/budget')} />
   </View></Screen>;
 

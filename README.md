@@ -77,12 +77,18 @@ Le esigenze alimentari escludono intere ricette; gli obiettivi nutrizionali
 e i preferiti ne orientano la selezione. Con un catalogo piccolo sono possibili
 ripetizioni e alcune combinazioni di esclusioni non producono un piano.
 
-Gli ingredienti hanno un nome e un ID indipendenti dal prodotto commerciale.
-Solo corrispondenze di catalogo controllate vengono usate per i prezzi:
-gli alimenti mancanti restano visibili con prezzo non disponibile.
-Il subtotale mostra una confezione per prodotto conosciuto, non il costo
-garantito delle quantità settimanali, e non viene limitato artificialmente al budget.
-Le foto non disponibili mostrano un segnaposto, senza immagini sostitutive.
+Ogni ingrediente del piano deve risolvere a un prodotto presente in
+`product_catalog_en.json`, con un prezzo valido. Le ricette con anche un solo
+ingrediente non disponibile vengono escluse per intero. Il controllo si applica
+sia al piano demo sia alla selezione AI e viene ripetuto alla costruzione dei pasti.
+Nome del prodotto e quantità sono mostrati insieme nella lista della spesa.
+Il subtotale riporta i prezzi di una confezione per prodotto; non viene limitato
+artificialmente al budget. Una confezione senza peso dichiarato mantiene il suo
+prezzo di catalogo. Le foto non disponibili mostrano un segnaposto.
+
+Delle sei ricette iniziali, attualmente solo la pasta al pesto ha una mappatura
+completa dei prodotti. Le altre non vengono generate; se nessuna ricetta completa
+soddisfa preferenze ed esclusioni, viene mostrato un errore esplicito.
 
 Per aggiungere una ricetta, verificare tutti i dati sulla pagina originale,
 usare la foto della stessa pagina e aggiungere solo prodotti equivalenti

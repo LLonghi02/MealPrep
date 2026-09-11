@@ -25,6 +25,9 @@
         "projectId": "751db883-e6db-45d4-b024-a1bad431cc19"
       }
     },
-    "owner": "llara02s-team"
+    "owner": "llara02s-team",
+    "web": {
+      "output": "server"
+    }
   }
 }

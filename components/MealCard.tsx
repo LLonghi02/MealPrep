@@ -26,7 +26,7 @@ export function MealCard({ meal }: { meal: Meal }) {
       <View style={s.header}>
         <Text style={s.title}>{meal.name}</Text>
         <View style={s.headerActions}>
-          <Text style={s.price}>{meal.price > 0 ? `€${meal.price.toFixed(2)}${meal.priceIsPartial ? '*' : ''}` : '—'}</Text>
+          <Text style={s.price}>€{meal.price.toFixed(2)}</Text>
           <Pressable onPress={() => toggleFavorite(meal.name)} style={[s.likeButton, liked && s.likeButtonActive]} accessibilityRole="button" accessibilityLabel={liked ? 'Remove from favorites' : 'Add to favorites'}>
             <Text style={[s.likeText, liked && s.likeTextActive]}>{liked ? '♥' : '♡'}</Text>
           </Pressable>
@@ -36,17 +36,16 @@ export function MealCard({ meal }: { meal: Meal }) {
         <Metadata source={assets.clock}>{meal.prepTimeMinutes} min</Metadata>
         <Metadata source={assets.user}>{meal.servings} servings</Metadata>
         {meal.calories !== null && <Text style={s.calories}>{meal.calories} kcal / serving (source)</Text>}
-        {meal.price > 0 && <Metadata source={assets.cash}>Estimated ingredients{meal.priceIsPartial ? ' (partial)' : ''}</Metadata>}
+        <Metadata source={assets.cash}>Estimated ingredients</Metadata>
       </View>
       <Text style={s.meta}>Recipe and photo: {meal.sourceName}</Text>
-      {meal.priceIsPartial && <Text style={s.meta}>Some ingredient prices are unavailable.</Text>}
 
       <View style={s.section}>
         <Text style={s.sectionTitle}>Ingredients</Text>
         <View style={s.ingredientList}>
           {meal.ingredients.map((ingredient, i) => <View key={`${ingredient.id}-${i}`} style={s.ingredientRow}>
             <View style={s.dot} />
-            <Text style={s.body}>{ingredient.name} <Text style={s.quantity}>· {ingredient.quantityLabel}</Text></Text>
+            <Text style={s.body} numberOfLines={1} ellipsizeMode="middle" accessibilityLabel={`${ingredient.name} · ${ingredient.quantityLabel}`}>{ingredient.name} <Text style={s.quantity}>· {ingredient.quantityLabel}</Text></Text>
           </View>)}
         </View>
       </View>

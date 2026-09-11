@@ -33,14 +33,14 @@ const { MealCard } = require('../components/MealCard.tsx');
 const input = { budget: 82, dietaryNeeds: 'none', nutritionalGoal: 'none' };
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-test('shopping rows show ingredient names for mass, volume, count and missing products', () => {
+test('shopping rows show ingredient names and quantities together with catalog prices', () => {
   const items = [
-    { id: 'pasta', name: 'Pasta', quantities: ['200 g', '300 g'] },
-    { id: 'milk', name: 'Milk', quantities: ['250 ml'] },
-    { id: 'avocado', name: 'Avocado', quantities: ['2 pieces'] },
+    { id: 'pasta', name: 'Pasta', quantities: ['200 g', '300 g'], product: getAllProducts()[0] },
+    { id: 'milk', name: 'Milk', quantities: ['250 ml'], product: getAllProducts()[0] },
+    { id: 'cheese', name: 'Cheese', quantities: ['2 pieces'], product: getAllProducts()[0] },
   ];
   const html = renderToStaticMarkup(React.createElement(ShoppingList, { items, total: 0, refreshing: false, onRemove() {} }));
-  for (const text of ['Pasta', '500 g', 'Milk', '250 ml', 'Avocado', '2 pieces', 'Price unavailable']) assert.ok(html.includes(text), text);
+  for (const text of ['Pasta · 500 g', 'Milk · 250 ml', 'Cheese · 2 pieces']) assert.ok(html.includes(text), text);
 });
 
 test('quantities aggregate compatible units and retain serving instructions', () => {
@@ -62,18 +62,22 @@ test('all 14 meals resolve ingredients, images and links from the same source', 
     assert.equal(meal.recipeUrl, source.recipeUrl);
     assert.equal(meal.name, source.name);
     assert.equal(meal.servings, source.servings);
-    assert.deepEqual(meal.ingredients.map(({ id, name, quantityLabel }) => ({ id, name, quantityLabel })), source.ingredients.map(({ id, name, quantityLabel }) => ({ id, name, quantityLabel })));
+    assert.deepEqual(meal.ingredients.map(({ id, quantityLabel }) => ({ id, quantityLabel })), source.ingredients.map(({ id, quantityLabel }) => ({ id, quantityLabel })));
     assert.ok(!meal.imageUrl.includes('unsplash'));
     assert.ok(!meal.recipeUrl.includes('/collection/'));
   }
   const shopping = buildShoppingList(plan);
   for (const ingredient of meals.flatMap((meal) => meal.ingredients)) assert.ok(shopping.items.some((item) => item.id === ingredient.id));
-  assert.equal(shopping.items.find((item) => item.id === 'avocado').product, undefined);
-  assert.equal(shopping.partial, true);
+  for (const item of shopping.items) {
+    assert.ok(getAllProducts().some((product) => product.id === item.product.id));
+    assert.equal(item.name, item.product.name);
+    assert.ok(Number.isFinite(item.product.price.amount));
+  }
+  assert.ok(!shopping.items.some((item) => item.id === 'avocado'));
 });
 
 test('model output cannot override source details or invent recipe IDs', () => {
-  const raw = { days: days.map((day) => ({ day, recipeIds: ['pesto-pasta', 'baked-salmon'], imageUrl: 'https://unrelated.example/photo.jpg', ingredientIds: ['wrong'] })) };
+  const raw = { days: days.map((day) => ({ day, recipeIds: ['pesto-pasta', 'pesto-pasta'], imageUrl: 'https://unrelated.example/photo.jpg', ingredientIds: ['wrong'] })) };
   assert.equal(parseAndValidate(raw, recipes).days[0].meals[0].imageUrl, recipes[0].imageUrl);
   raw.days[0].recipeIds[0] = 'invented';
   assert.throws(() => parseAndValidate(raw, recipes), /unverified/);
@@ -83,6 +87,10 @@ test('model output cannot override source details or invent recipe IDs', () => {
 
 test('dietary restrictions and exclusions remove whole recipes without substitutions', async () => {
   for (const dietaryNeeds of ['none', 'veggie', 'vegan', 'pescatarian', 'gluten_free', 'dairy_free']) {
+    if (!availableRecipes({ ...input, dietaryNeeds }).length) {
+      await assert.rejects(generateMealPlan({ ...input, dietaryNeeds }), /tutti gli ingredienti nel catalogo/);
+      continue;
+    }
     const plan = await generateMealPlan({ ...input, dietaryNeeds });
     for (const meal of plan.days.flatMap((day) => day.meals)) assert.ok(recipes.find((recipe) => recipe.id === meal.recipeId).dietaryNeeds.includes(dietaryNeeds));
   }
@@ -101,13 +109,23 @@ test('all reviewed product references exist and no price is fabricated for fresh
 
 test('recipe card renders source ingredient names and source attribution', async () => {
   const plan = await generateMealPlan(input);
-  const meal = plan.days.flatMap((day) => day.meals).find((meal) => meal.recipeId === 'avocado-toast');
+  const meal = plan.days.flatMap((day) => day.meals).find((meal) => meal.recipeId === 'pesto-pasta');
   const html = renderToStaticMarkup(React.createElement(MealCard, { meal }));
-  assert.ok(html.includes('Ripe avocado'));
-  assert.ok(html.includes('Love and Lemons'));
+  assert.ok(html.includes('Spaghetti Pasta'));
+  assert.ok(html.includes('Good Food'));
   assert.ok(!html.includes('null kcal'));
   assert.ok(!html.includes('unsplash'));
   const placeholder = renderToStaticMarkup(React.createElement(MealCard, { meal: { ...meal, imageUrl: '' } }));
   assert.ok(placeholder.includes('Recipe photo unavailable'));
   assert.ok(!placeholder.includes('unsplash'));
+});
+
+
+test('incomplete recipes and shopping ingredients are rejected, never silently omitted', async () => {
+  assert.deepEqual(availableRecipes(input).map((recipe) => recipe.id), ['pesto-pasta']);
+  const raw = { days: days.map((day) => ({ day, recipeIds: ['avocado-toast', 'avocado-toast'] })) };
+  assert.throws(() => parseAndValidate(raw, recipes), /non disponibile nel catalogo/);
+  const plan = await generateMealPlan(input);
+  plan.days[0].meals[0].ingredients[0].product = undefined;
+  assert.throws(() => buildShoppingList(plan), /must belong to the product catalog/);
 });

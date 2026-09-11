@@ -47,7 +47,7 @@ export interface Product {
 export interface Ingredient {
   id: string;
   name: string;
-  product?: Product;
+  product: Product;
   quantityLabel: string; // es. "200 g", "2 pz"
 }
 
@@ -60,7 +60,6 @@ export interface Meal {
   servings: number;
   calories: number | null;
   price: number;
-  priceIsPartial: boolean;
   ingredients: Ingredient[];
   steps: string[];
   imageUrl: string;
@@ -89,6 +88,6 @@ export interface OnboardingState {
 export interface ShoppingItem {
   id: string;
   name: string;
-  product?: Product;
+  product: Product;
   quantities: string[];
 }
