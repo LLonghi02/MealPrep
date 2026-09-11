@@ -129,12 +129,42 @@ function parseAndValidate(raw: unknown, products: Product[]): MealPlan {
     };
   });
 
-  return { weeklyCost: Math.max(0, Number(plan.weeklyCost)), days };
+  return { weeklyCost: Math.max(0, Number(plan.weeklyCost)), days, source: 'llm' };
+}
+
+function createDemoMealPlan(input: GenerateMealPlanInput): MealPlan {
+  const products = filterProducts({ dietaryNeeds: input.dietaryNeeds, nutritionalGoal: input.nutritionalGoal });
+  const pick = (index: number) => products[index % products.length];
+  const recipes = [
+    ['Creamy tomato pasta', 25, 2, ['200 g pasta', '1 tomato', '30 g cheese'], ['Boil the pasta until just tender.', 'Warm the tomato in a pan and season to taste.', 'Toss the pasta with the sauce and finish with cheese.']],
+    ['Golden veggie grain bowl', 30, 2, ['150 g corn', '1 carrot', '100 g avocado'], ['Cook the grain base until fluffy.', 'Roast the vegetables until lightly golden.', 'Build the bowl and finish with avocado.']],
+    ['Herby fish with crisp vegetables', 28, 2, ['2 fish fillets', '1 carrot', '100 g corn'], ['Pat the fish dry and season.', 'Pan-sear until golden and cooked through.', 'Serve with the warm vegetables.']],
+    ['Avocado cheese toast', 12, 1, ['2 slices bread', '1 avocado', '40 g cheese'], ['Toast the bread until crisp.', 'Mash the avocado with a pinch of salt.', 'Top with cheese and serve immediately.']],
+    ['Roasted eggplant pasta', 35, 3, ['200 g eggplant', '180 g pasta', '1 tomato'], ['Roast the eggplant until tender.', 'Cook the pasta and reserve a little cooking water.', 'Stir everything together with the tomato sauce.']],
+    ['Fresh corn and tomato salad', 15, 2, ['150 g corn', '2 tomatoes', '1 avocado'], ['Chop the vegetables into bite-size pieces.', 'Combine in a bowl with seasoning.', 'Rest for five minutes before serving.']],
+    ['Simple fish and veggie plate', 25, 2, ['2 fish fillets', '1 potato', '1 carrot'], ['Steam the vegetables until tender.', 'Cook the fish in a hot pan.', 'Plate together and add your favorite herbs.']],
+  ] as const;
+
+  let cursor = 0;
+  const days = DAYS.map((day, dayIndex) => {
+    const recipe = recipes[dayIndex];
+    const ingredientCount = recipe[3].length;
+    const ingredients = Array.from({ length: ingredientCount }, (_, ingredientIndex) => ({
+      product: pick(cursor + ingredientIndex),
+      quantityLabel: recipe[3][ingredientIndex],
+    }));
+    cursor += ingredientCount;
+    return {
+      day,
+      meals: [{ id: `demo-${day.toLowerCase()}`, name: recipe[0], prepTimeMinutes: recipe[1], servings: recipe[2], price: 4.5 + dayIndex * 0.35, ingredients, steps: [...recipe[4]] }],
+    };
+  });
+  return { weeklyCost: 34.95, days, source: 'demo' };
 }
 
 export async function generateMealPlan(input: GenerateMealPlanInput): Promise<MealPlan> {
   if (!OPENAI_API_KEY) {
-    throw new Error('Meal generation is not configured. Add EXPO_PUBLIC_OPENAI_API_KEY to your .env file and restart Expo.');
+    return createDemoMealPlan(input);
   }
 
   const candidateProducts = filterProducts({ dietaryNeeds: input.dietaryNeeds, nutritionalGoal: input.nutritionalGoal });

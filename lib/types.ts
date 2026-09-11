@@ -41,7 +41,7 @@ export interface Product {
   nutriScore: string;
   novaGroup: number;
   labels: { id: string; name: string }[];
-  allergens: string[];
+  allergens: { id: string; name: string }[];
 }
 
 export interface Ingredient {
@@ -67,6 +67,7 @@ export interface DayPlan {
 export interface MealPlan {
   weeklyCost: number;
   days: DayPlan[];
+  source?: 'demo' | 'llm';
 }
 
 export interface OnboardingState {

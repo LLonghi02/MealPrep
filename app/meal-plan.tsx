@@ -39,6 +39,7 @@ export default function MealPlanScreen() {
         </View>
         <Text style={s.title}>Bon appetit!</Text>
         <Text style={s.subtitle}>Seven days of recipes, shaped around your choices.</Text>
+        {plan.source === 'demo' && <View style={s.demoBadge}><Text style={s.demoBadgeText}>DEMO PLAN · SAMPLE RECIPES</Text></View>}
       </View>
 
       <View style={s.plannerCard}>
@@ -82,6 +83,8 @@ const s = StyleSheet.create({
   weekCostUnit: { fontFamily: fonts.regular, fontSize: 12, color: 'rgba(255,255,255,0.75)' },
   title: { marginTop: 12, fontFamily: fonts.semiBold, fontSize: 40, lineHeight: 48, color: colors.textOnPrimary },
   subtitle: { marginTop: 4, fontFamily: fonts.regular, fontSize: 15, lineHeight: 21, color: 'rgba(255,255,255,0.8)' },
+  demoBadge: { alignSelf: 'flex-start', marginTop: 14, borderRadius: radii.pill, backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 6 },
+  demoBadgeText: { fontFamily: fonts.semiBold, fontSize: 10, letterSpacing: 0.8, color: colors.textOnPrimary },
   plannerCard: { backgroundColor: colors.card, borderRadius: 32, padding: spacing.lg, paddingBottom: 20, minHeight: 580 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardKicker: { fontFamily: fonts.semiBold, fontSize: 11, letterSpacing: 1, color: colors.primaryDark },

@@ -14,12 +14,14 @@ import { assets } from "../assets/figma";
 
 // Distances in illustration points, durations in milliseconds.
 export const ENTRANCE = {
-  jumpHeight: 30,
+  jumpHeight: 58,
   delay: 180,
-  foodDuration: 780,
-  stagger: 40,
+  foodDuration: 900,
+  stagger: 70,
 };
 const FOODS = [
+  // Final positions form a soft burst: each item first rises from the mouth,
+  // then travels to its own left/right/up destination.
   { key: "apple", image: assets.apple, x: -104, y: -110, angle: -12 },
   { key: "cheese", image: assets.cheese, x: -147, y: 10, angle: -16 },
   { key: "corn", image: assets.corn, x: -99, y: 148, angle: -14 },
@@ -70,13 +72,25 @@ export function GroceryEntrance() {
           Animated.parallel([timing(squash, 1, 115), timing(tilt, -1, 115)]),
           Animated.parallel([
             timing(jump, 1, 190, Easing.out(Easing.quad)),
-            timing(squash, -0.5, 190),
+            timing(squash, -0.7, 190),
             timing(tilt, 1, 190),
           ]),
           Animated.parallel([
             timing(jump, 0, 165, Easing.in(Easing.quad)),
-            timing(squash, 0.8, 165),
+            timing(squash, 1, 165),
             timing(tilt, -0.35, 165),
+          ]),
+          // Two visible rebounds make the landing feel physical rather than
+          // like a single linear lift.
+          Animated.parallel([
+            timing(jump, 0.42, 125, Easing.out(Easing.quad)),
+            timing(squash, -0.42, 125),
+            timing(tilt, 0.22, 125),
+          ]),
+          Animated.parallel([
+            timing(jump, 0, 115, Easing.in(Easing.quad)),
+            timing(squash, 0.55, 115),
+            timing(tilt, -0.14, 115),
           ]),
           // Launch only on impact. The opaque bag front occludes the starting positions.
           Animated.parallel([
@@ -195,10 +209,14 @@ export function GroceryEntrance() {
             const progress = food[index];
             const inputRange = Array.from({ length: 41 }, (_, i) => i / 40);
             const horizontal = inputRange.map((t) => {
-              const u = Math.max(0, (t - 0.16) / 0.84);
+              // Items stay hidden behind the bag until they have cleared its
+              // opening, then arc toward their individual left/right landing.
+              const u = Math.max(0, (t - 0.12) / 0.88);
               return item.x * (1 - Math.pow(1 - u, 3));
             });
-            // Cubic flight rises out of the mouth before fanning out to the Figma positions.
+            // The shared first control point makes the groceries visibly
+            // launch out of the opening; each final y gives a different
+            // upward, sideways, or lower arc instead of a pop-in.
             const vertical = inputRange.map((t) => {
               const u = 1 - Math.pow(1 - t, 2);
               return (

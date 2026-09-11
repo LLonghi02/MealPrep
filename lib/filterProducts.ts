@@ -9,7 +9,7 @@ const products = catalog as Product[];
 
 function matchesDietaryNeed(product: Product, need: DietaryNeed): boolean {
   const labelNames = product.labels.map((l) => l.name);
-  const allergens = product.allergens.map((a) => a.toLowerCase());
+  const allergens = product.allergens.map((a) => `${a.name} ${a.id}`.toLowerCase());
 
   switch (need) {
     case 'veggie':
