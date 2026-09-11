@@ -145,6 +145,7 @@ export function GroceryEntrance() {
     <View
       style={{ width: 353 * scale, height: 400 * scale }}
       pointerEvents="none"
+      aria-hidden
       accessible={false}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"

@@ -7,7 +7,7 @@ import { colors } from '../theme';
 export function Screen({ children, green = false }: { children: ReactNode; green?: boolean }) {
   const insets = useSafeAreaInsets();
   return <View style={[s.outer, green && s.green]}>
-    <ScrollView style={s.scroll} contentContainerStyle={s.grow}>
+    <ScrollView style={s.scroll} contentContainerStyle={s.grow} showsVerticalScrollIndicator={false}>
       <View style={[s.canvas, {
         paddingTop: (Platform.OS === 'web' ? 62 : insets.top) + 20,
         paddingBottom: (Platform.OS === 'web' ? 34 : insets.bottom) + 23,

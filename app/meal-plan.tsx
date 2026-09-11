@@ -35,13 +35,13 @@ export default function MealPlanScreen() {
     </View>
     <DayTabs days={DAYS} selectedDay={DAYS[index]} onSelect={select} />
     <View style={s.carousel} onLayout={event => {
-      const nextWidth = event.nativeEvent.layout.width;
+      const nextWidth = Math.max(1, event.nativeEvent.layout.width - 44);
       setWidth(nextWidth);
       pager.current?.scrollTo({ x: index * nextWidth, animated: false });
     }}>
-      {width > 0 && <ScrollView ref={pager} horizontal pagingEnabled showsHorizontalScrollIndicator={false}
+      {width > 0 && <ScrollView ref={pager} horizontal snapToInterval={width} decelerationRate="fast" contentContainerStyle={{ paddingHorizontal: 22 }} showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={event => setIndex(Math.max(0, Math.min(6, Math.round(event.nativeEvent.contentOffset.x / width))))}>
-        {DAYS.map((day, i) => <View key={day} style={{ width, paddingHorizontal: 8 }}>
+        {DAYS.map((day, i) => <View key={day} aria-hidden={i !== index} accessibilityElementsHidden={i !== index} style={{ width, paddingHorizontal: 6 }}>
           <View style={s.dayCard}>
             <Text style={s.dayTitle}>{NAMES[i]}</Text>
             {plan.days.find(d => d.day === day)?.meals.map(meal => <MealCard key={meal.id} meal={meal} />)}
@@ -58,7 +58,7 @@ const s = StyleSheet.create({
   costRow: { flexDirection: 'row', gap: 4, alignItems: 'center' },
   costAmount: { fontFamily: fonts.medium, fontSize: 24, lineHeight: 34 },
   costUnit: { fontFamily: fonts.medium, fontSize: 16, lineHeight: 22 },
-  carousel: { marginTop: 32, flexGrow: 1 },
+  carousel: { marginTop: 32, marginHorizontal: -20, flexGrow: 1 },
   dayCard: { flex: 1, minHeight: 546, backgroundColor: colors.card, borderRadius: 32, padding: 24, gap: 28 },
   dayTitle: { fontFamily: fonts.semiBold, fontSize: 24, lineHeight: 33 },
   empty: { flex: 1, justifyContent: 'center', gap: 24 },
