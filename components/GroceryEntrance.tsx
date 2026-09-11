@@ -14,20 +14,22 @@ import { assets } from "../assets/figma";
 
 // Distances in illustration points, durations in milliseconds.
 export const ENTRANCE = {
-  jumpHeight: 30,
+  jumpHeight: 58,
   delay: 180,
-  foodDuration: 780,
-  stagger: 40,
+  foodDuration: 900,
+  stagger: 70,
 };
 const FOODS = [
-  { key: "apple", image: assets.apple, x: -104, y: -110, angle: -12 },
-  { key: "cheese", image: assets.cheese, x: -147, y: 10, angle: -16 },
-  { key: "corn", image: assets.corn, x: -99, y: 148, angle: -14 },
-  { key: "eggplant", image: assets.eggplant, x: 22, y: 185, angle: 12 },
-  { key: "tomato", image: assets.tomato, x: 132, y: 128, angle: 16 },
-  { key: "carrot", image: assets.carrot, x: 140, y: -23, angle: 18 },
-  { key: "steak", image: assets.steak, x: 62, y: -127, angle: 10 },
-  { key: "avocado", image: assets.avocado, x: -22, y: -148, angle: -2 },
+  // Keep the stream narrow: the groceries climb out of the bag vertically
+  // instead of fanning across the illustration.
+  { key: "apple", image: assets.apple, x: -14, y: -330, angle: -12 },
+  { key: "cheese", image: assets.cheese, x: 12, y: -285, angle: 14 },
+  { key: "corn", image: assets.corn, x: -9, y: -240, angle: -10 },
+  { key: "eggplant", image: assets.eggplant, x: 15, y: -195, angle: 12 },
+  { key: "tomato", image: assets.tomato, x: -12, y: -150, angle: -16 },
+  { key: "carrot", image: assets.carrot, x: 10, y: -105, angle: 16 },
+  { key: "steak", image: assets.steak, x: -8, y: -60, angle: -12 },
+  { key: "avocado", image: assets.avocado, x: 8, y: -15, angle: 10 },
 ] as const;
 const driver = { useNativeDriver: Platform.OS !== "web", isInteraction: false };
 
@@ -70,13 +72,25 @@ export function GroceryEntrance() {
           Animated.parallel([timing(squash, 1, 115), timing(tilt, -1, 115)]),
           Animated.parallel([
             timing(jump, 1, 190, Easing.out(Easing.quad)),
-            timing(squash, -0.5, 190),
+            timing(squash, -0.7, 190),
             timing(tilt, 1, 190),
           ]),
           Animated.parallel([
             timing(jump, 0, 165, Easing.in(Easing.quad)),
-            timing(squash, 0.8, 165),
+            timing(squash, 1, 165),
             timing(tilt, -0.35, 165),
+          ]),
+          // Two visible rebounds make the landing feel physical rather than
+          // like a single linear lift.
+          Animated.parallel([
+            timing(jump, 0.42, 125, Easing.out(Easing.quad)),
+            timing(squash, -0.42, 125),
+            timing(tilt, 0.22, 125),
+          ]),
+          Animated.parallel([
+            timing(jump, 0, 115, Easing.in(Easing.quad)),
+            timing(squash, 0.55, 115),
+            timing(tilt, -0.14, 115),
           ]),
           // Launch only on impact. The opaque bag front occludes the starting positions.
           Animated.parallel([
@@ -195,10 +209,13 @@ export function GroceryEntrance() {
             const progress = food[index];
             const inputRange = Array.from({ length: 41 }, (_, i) => i / 40);
             const horizontal = inputRange.map((t) => {
-              const u = Math.max(0, (t - 0.16) / 0.84);
+              // A tiny side-to-side drift keeps each item alive without
+              // turning the vertical stream back into a horizontal fan.
+              const u = Math.max(0, (t - 0.12) / 0.88);
               return item.x * (1 - Math.pow(1 - u, 3));
             });
-            // Cubic flight rises out of the mouth before fanning out to the Figma positions.
+            // Every grocery follows the same upward lane, with only a small
+            // individual offset so the launch reads as a vertical stream.
             const vertical = inputRange.map((t) => {
               const u = 1 - Math.pow(1 - t, 2);
               return (
