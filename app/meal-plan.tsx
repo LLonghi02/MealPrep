@@ -52,7 +52,7 @@ function ShoppingList({ items, total, onRemove, refreshing }: { items: ShoppingI
         <View style={s.shoppingDot} />
         <Text style={s.shoppingProduct}>{shoppingLabel(item)}</Text>
         <Text style={s.shoppingPrice}>€{item.product.price.amount.toFixed(2)}</Text>
-        <Pressable onPress={() => onRemove(item.product.id)} style={s.removeButton} accessibilityRole="button" accessibilityLabel={`Rimuovi ${item.product.name}`}><Text style={s.removeText}>×</Text></Pressable>
+        <Pressable onPress={() => onRemove(item.product.id)} style={s.removeButton} accessibilityRole="button" accessibilityLabel={`Remove ${item.product.name}`}><Text style={s.removeText}>×</Text></Pressable>
       </View>)}
     </View>
       <View style={s.totalRow}><Text style={s.totalRowLabel}>Estimated shopping total</Text><Text style={s.totalRowValue}>€{total.toFixed(2)}</Text></View>

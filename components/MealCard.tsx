@@ -32,20 +32,20 @@ export function MealCard({ meal }: { meal: Meal }) {
         <Text style={s.title}>{meal.name}</Text>
         <View style={s.headerActions}>
           <Text style={s.price}>€{meal.price.toFixed(2)}</Text>
-          <Pressable onPress={() => toggleFavorite(meal.name)} style={[s.likeButton, liked && s.likeButtonActive]} accessibilityRole="button" accessibilityLabel={liked ? 'Rimuovi dai preferiti' : 'Metti mi piace alla ricetta'}>
+          <Pressable onPress={() => toggleFavorite(meal.name)} style={[s.likeButton, liked && s.likeButtonActive]} accessibilityRole="button" accessibilityLabel={liked ? 'Remove from favorites' : 'Add to favorites'}>
             <Text style={[s.likeText, liked && s.likeTextActive]}>{liked ? '♥' : '♡'}</Text>
           </Pressable>
         </View>
       </View>
       <View style={s.metaRow}>
         <Metadata source={assets.clock}>{meal.prepTimeMinutes} min</Metadata>
-        <Metadata source={assets.user}>{meal.servings} porzioni</Metadata>
-        <Text style={s.calories}>{meal.calories} kcal / porzione</Text>
-        <Metadata source={assets.cash}>€{meal.price.toFixed(2)} totale</Metadata>
+        <Metadata source={assets.user}>{meal.servings} servings</Metadata>
+        <Text style={s.calories}>{meal.calories} kcal / serving</Text>
+        <Metadata source={assets.cash}>€{meal.price.toFixed(2)} total</Metadata>
       </View>
 
       <View style={s.section}>
-        <Text style={s.sectionTitle}>Ingredienti</Text>
+        <Text style={s.sectionTitle}>Ingredients</Text>
         <View style={s.ingredientList}>
           {meal.ingredients.map((ingredient, i) => <View key={`${ingredient.product.id}-${i}`} style={s.ingredientRow}>
             <View style={s.dot} />
@@ -55,7 +55,7 @@ export function MealCard({ meal }: { meal: Meal }) {
       </View>
 
       <View style={s.section}>
-        <Text style={s.sectionTitle}>Preparazione</Text>
+        <Text style={s.sectionTitle}>Preparation</Text>
         <View style={s.steps}>
           {meal.steps.map((step, i) => <View key={`${meal.id}-step-${i}`} style={s.step}>
             <Text style={s.number}>{i + 1}</Text>
@@ -65,7 +65,7 @@ export function MealCard({ meal }: { meal: Meal }) {
       </View>
 
       <Pressable onPress={openRecipe} style={({ pressed }) => [s.recipeButton, pressed && s.pressed]} accessibilityRole="link">
-        <Text style={s.recipeButtonText}>Apri la ricetta completa ↗</Text>
+        <Text style={s.recipeButtonText}>View full recipe ↗</Text>
       </Pressable>
     </View>
   </View>;

@@ -55,8 +55,8 @@ Rules:
 - Every meal must have a clear name, prep time, servings, price, 3-8 ingredients, and 3-6 concise cooking steps.
 - Use only product IDs from the catalog for ingredientIds. Never invent IDs.
 - ingredientQuantities must align by index with ingredientIds and use human-readable quantities such as "200 g" or "2 pieces".
-- imageUrl must be a stable, direct food photo URL from images.unsplash.com.
-- recipeUrl must link to a public website page with the detailed recipe for the dish.
+- imageUrl must be a stable, direct food photo URL from images.unsplash.com showing the exact dish described by the recipe name, not a generic food image.
+- recipeUrl must link to a public website page with the detailed recipe for the same dish shown in imageUrl; never pair an unrelated photo and recipe.
 - Keep the weekly cost at or below the user's budget where possible.
 - Respond with JSON only. No markdown or commentary.`;
 }
