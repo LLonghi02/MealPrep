@@ -70,6 +70,9 @@ Rispondi SOLO con un JSON valido in questo formato, senza testo aggiuntivo:
 export async function generateMealPlan(
   input: GenerateMealPlanInput
 ): Promise<MealPlan> {
+  if (!OPENAI_API_KEY) {
+    throw new Error('Meal generation is not configured yet. Please contact the app administrator.');
+  }
   const candidateProducts = filterProducts({
     dietaryNeeds: input.dietaryNeeds,
     nutritionalGoal: input.nutritionalGoal,

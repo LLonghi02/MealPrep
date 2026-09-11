@@ -1,95 +1,46 @@
-// app/nutritional-goals.tsx — 04 Nutritional Goals Selection
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ProgressHeader } from '../components/ProgressHeader';
 import { OptionChip } from '../components/OptionChip';
-import { Button } from '../components/Button';
+import { OnboardingScreen, optionLayout } from '../components/OnboardingScreen';
 import { useAppStore } from '../lib/store';
 import { generateMealPlan } from '../lib/generateMealPlan';
-import { colors, fonts, spacing } from '../theme';
 import type { NutritionalGoal } from '../lib/types';
 
-const OPTIONS: { value: NutritionalGoal; label: string; icon: string }[] = [
-  { value: 'none', label: 'None', icon: '⬜️' },
-  { value: 'high_protein', label: 'High protein', icon: '🍗' },
-  { value: 'low_sugar', label: 'Low sugar', icon: '🍬' },
-  { value: 'low_fat', label: 'Low fat', icon: '🥑' },
-  { value: 'low_carbs', label: 'Low carbs', icon: '🍞' },
+const OPTIONS: { value: NutritionalGoal; label: string; icon?: string }[] = [
+  { value: 'none', label: 'None' },
+  { value: 'high_protein', label: 'High protein', icon: '🥩' },
+  { value: 'low_sugar', label: 'Low sugar', icon: '🍯' },
+  { value: 'low_fat', label: 'Low fat', icon: '🫑' },
+  { value: 'low_carbs', label: 'Low carbs', icon: '🍝' },
   { value: 'low_salt', label: 'Low salt', icon: '🧂' },
 ];
-
 export default function NutritionalGoalsScreen() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const { budget, dietaryNeeds, nutritionalGoal, setNutritionalGoal } =
-    useAppStore((s) => ({
-      budget: s.budget,
-      dietaryNeeds: s.dietaryNeeds,
-      nutritionalGoal: s.nutritionalGoal,
-      setNutritionalGoal: s.setNutritionalGoal,
-    }));
-  const setMealPlan = useAppStore((s) => s.setMealPlan);
-  const setGenerationError = useAppStore((s) => s.setGenerationError);
-
+  const [loading, setLoading] = useState(false);
+  const selected = useAppStore(s => s.nutritionalGoal);
+  const confirmed = useAppStore(s => s.nutritionConfirmed);
+  const select = useAppStore(s => s.setNutritionalGoal);
+  const error = useAppStore(s => s.generationError);
   const handleContinue = async () => {
-    setIsLoading(true);
-    setGenerationError(null);
+    if (loading || !confirmed) return;
+    setLoading(true);
+    const state = useAppStore.getState();
+    state.setGenerationError(null);
     try {
-      const plan = await generateMealPlan({ budget, dietaryNeeds, nutritionalGoal });
-      setMealPlan(plan);
+      const plan = await generateMealPlan(state);
+      state.setMealPlan(plan);
       router.push('/meal-plan');
     } catch (err) {
-      setGenerationError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setIsLoading(false);
-    }
+      state.setGenerationError(err instanceof Error ? err.message : 'Unable to generate your plan. Please try again.');
+    } finally { setLoading(false); }
   };
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <ProgressHeader step={3} totalSteps={3} />
-
-      <View style={styles.content}>
-        <Text style={styles.title}>Any nutritional goals?</Text>
-
-        <View style={styles.grid}>
-          {OPTIONS.map((opt) => (
-            <OptionChip
-              key={opt.value}
-              label={opt.label}
-              icon={opt.icon}
-              selected={nutritionalGoal === opt.value}
-              onPress={() => setNutritionalGoal(opt.value)}
-            />
-          ))}
-        </View>
-      </View>
-
-      <Button
-        title="Continue"
-        onPress={handleContinue}
-        loading={isLoading}
-        style={styles.button}
-      />
-    </SafeAreaView>
-  );
+  return <OnboardingScreen title="Any nutritional goals?" step={3} disabled={!confirmed} loading={loading} error={error} onContinue={handleContinue}>
+    <View style={optionLayout.grid} accessibilityRole="radiogroup">
+      {OPTIONS.map(option => <View key={option.value} style={optionLayout.cell}>
+        <OptionChip {...option} selected={confirmed && selected === option.value} onPress={() => select(option.value)} />
+      </View>)}
+    </View>
+  </OnboardingScreen>;
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { flex: 1, paddingHorizontal: spacing.lg, paddingTop: spacing.xl },
-  title: {
-    fontFamily: fonts.semiBold,
-    fontSize: 20,
-    color: colors.text,
-    marginBottom: spacing.lg,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  button: { marginHorizontal: spacing.lg, marginBottom: spacing.lg },
-});

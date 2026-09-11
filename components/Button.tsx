@@ -26,6 +26,8 @@ export function Button({
     <Pressable
       onPress={onPress}
       disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       style={[
         styles.base,
         variant === 'primary' ? styles.primary : styles.secondary,
@@ -40,6 +42,7 @@ export function Button({
           style={[
             styles.text,
             variant === 'secondary' && styles.textSecondary,
+            isDisabled && styles.textDisabled,
           ]}
         >
           {title}
@@ -51,11 +54,12 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    height: 56,
+    minHeight: 72,
     borderRadius: radii.pill,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
+    paddingVertical: 20,
   },
   primary: {
     backgroundColor: colors.primary,
@@ -68,10 +72,13 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: fonts.semiBold,
-    fontSize: 16,
+    fontSize: 20,
+    letterSpacing: 0.4,
+    textAlign: 'center',
     color: colors.textOnPrimary,
   },
   textSecondary: {
     color: colors.text,
   },
+  textDisabled: { color: colors.disabledText },
 });

@@ -1,20 +1,20 @@
 // theme.ts
 // Design tokens centralizzati: colori, font, spacing.
-// I valori dei colori sono stimati dallo screenshot del template
-// e vanno confermati/aggiustati con il file Figma originale.
+// Matched to mealprep_design, Figma page 0:1.
 
 export const colors = {
-  primary: '#3DBA57',       // verde brand (bottoni, header schermata Meal Plan)
+  primary: '#34C759',
   primaryDark: '#2E9E45',
-  background: '#FBFBF9',    // sfondo generale, quasi bianco
+  background: '#FDFFFB',
   card: '#FFFFFF',
-  chipBackground: '#F1F1EF',
+  chipBackground: '#F2F2F7',
   chipBackgroundSelected: '#E4F6E8',
   border: '#E5E5E2',
-  text: '#111111',
-  textMuted: '#8A8A85',
+  text: '#000000',
+  textMuted: 'rgba(60,60,67,0.6)',
   textOnPrimary: '#FFFFFF',
-  disabled: '#D9D9D6',
+  disabled: '#F2F2F7',
+  disabledText: 'rgba(60,60,67,0.18)',
 } as const;
 
 export const fonts = {

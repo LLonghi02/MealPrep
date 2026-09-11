@@ -1,55 +1,23 @@
-// components/OptionChip.tsx
-// Chip selezionabile riutilizzata in Dietary Needs (03) e Nutritional Goals (04).
 import React from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
-import { colors, fonts, radii, spacing } from '../theme';
+import { colors, fonts } from '../theme';
 
-interface OptionChipProps {
-  label: string;
-  icon?: string;       // emoji o carattere semplice come placeholder icona
-  selected: boolean;
-  onPress: () => void;
+/** Figma's food symbols are text emoji layers, not vector icons. */
+export function OptionChip({ label, icon, selected, onPress }: {
+  label: string; icon?: string; selected: boolean; onPress: () => void;
+}) {
+  return <Pressable accessibilityRole="radio" aria-checked={selected} accessibilityState={{ checked: selected }} accessibilityLabel={label}
+    onPress={onPress} style={({ pressed }) => [s.chip, selected && s.selected, pressed && s.pressed]}>
+    {icon && <Text style={s.icon}>{icon}</Text>}
+    <Text style={s.label}>{label}</Text>
+  </Pressable>;
 }
-
-export function OptionChip({ label, icon, selected, onPress }: OptionChipProps) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[styles.chip, selected && styles.chipSelected]}
-    >
-      {icon ? <Text style={styles.icon}>{icon}</Text> : null}
-      <Text style={[styles.label, selected && styles.labelSelected]}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
-const styles = StyleSheet.create({
-  chip: {
-    flexBasis: '48%',
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.chipBackground,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  chipSelected: {
-    backgroundColor: colors.chipBackgroundSelected,
-    borderColor: colors.primary,
-  },
-  icon: {
-    fontSize: 20,
-    marginBottom: spacing.xs,
-  },
-  label: {
-    fontFamily: fonts.medium,
-    fontSize: 15,
-    color: colors.text,
-  },
-  labelSelected: {
-    color: colors.primaryDark,
-  },
+const s = StyleSheet.create({
+  chip: { width: '100%', minHeight: 104, borderRadius: 20, backgroundColor: colors.chipBackground,
+    alignItems: 'center', justifyContent: 'center', gap: 4, padding: 12, borderWidth: 2, borderColor: 'transparent' },
+  selected: { borderColor: colors.primary, backgroundColor: colors.chipBackgroundSelected },
+  pressed: { opacity: 0.8 },
+  icon: { fontSize: 32, lineHeight: 36 },
+  label: { fontFamily: fonts.medium, fontSize: 16, lineHeight: 22, color: colors.text, textAlign: 'center' },
 });
+

@@ -10,6 +10,8 @@ interface AppState {
   budget: number;
   dietaryNeeds: DietaryNeed;
   nutritionalGoal: NutritionalGoal;
+  dietaryConfirmed: boolean;
+  nutritionConfirmed: boolean;
   setBudget: (value: number) => void;
   setDietaryNeeds: (value: DietaryNeed) => void;
   setNutritionalGoal: (value: NutritionalGoal) => void;
@@ -26,7 +28,9 @@ interface AppState {
 }
 
 const initialState = {
-  budget: 80,
+  budget: 82,
+  dietaryConfirmed: false,
+  nutritionConfirmed: false,
   dietaryNeeds: 'none' as DietaryNeed,
   nutritionalGoal: 'none' as NutritionalGoal,
   mealPlan: null,
@@ -38,8 +42,8 @@ export const useAppStore = create<AppState>((set) => ({
   ...initialState,
 
   setBudget: (value) => set({ budget: value }),
-  setDietaryNeeds: (value) => set({ dietaryNeeds: value }),
-  setNutritionalGoal: (value) => set({ nutritionalGoal: value }),
+  setDietaryNeeds: (value) => set({ dietaryNeeds: value, dietaryConfirmed: true }),
+  setNutritionalGoal: (value) => set({ nutritionalGoal: value, nutritionConfirmed: true }),
 
   setMealPlan: (plan) => set({ mealPlan: plan }),
   setGenerating: (value) => set({ isGenerating: value }),
