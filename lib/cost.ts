@@ -16,6 +16,7 @@ function toBaseUnit(amount: number, unit: string): { amount: number; unit: 'mass
 }
 
 export function ingredientCost(ingredient: Ingredient): number {
+  if (!ingredient.product?.netContent) return 0;
   const used = amountAndUnit(ingredient.quantityLabel);
   const pack = toBaseUnit(ingredient.product.netContent.value, ingredient.product.netContent.unit.toLowerCase());
   const requested = toBaseUnit(used.amount, used.unit);

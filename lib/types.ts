@@ -25,7 +25,7 @@ export interface Product {
   department: { id: string; name: string };
   category: { id: string; name: string };
   quantity: string;
-  netContent: { value: number; unit: string };
+  netContent: { value: number; unit: string } | null;
   price: { amount: number; currency: string };
   unitPrice: { amount: number; unit: string };
   nutrition: {
@@ -45,17 +45,22 @@ export interface Product {
 }
 
 export interface Ingredient {
-  product: Product;
+  id: string;
+  name: string;
+  product?: Product;
   quantityLabel: string; // es. "200 g", "2 pz"
 }
 
 export interface Meal {
   id: string;
+  recipeId: string;
+  sourceName: string;
   name: string;
   prepTimeMinutes: number;
   servings: number;
-  calories: number;
+  calories: number | null;
   price: number;
+  priceIsPartial: boolean;
   ingredients: Ingredient[];
   steps: string[];
   imageUrl: string;
@@ -82,6 +87,8 @@ export interface OnboardingState {
 }
 
 export interface ShoppingItem {
-  product: Product;
+  id: string;
+  name: string;
+  product?: Product;
   quantities: string[];
 }

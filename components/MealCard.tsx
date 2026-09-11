@@ -9,34 +9,24 @@ function Metadata({ source, children }: { source: ImageSourcePropType; children:
   return <View style={s.metaItem}><Image source={source} style={s.icon} /><Text style={s.meta}>{children}</Text></View>;
 }
 
-function fallbackImage(recipeName: string): ImageSourcePropType {
-  const name = recipeName.toLowerCase();
-  const photo = name.includes('fish')
-    ? 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=900&q=85'
-    : name.includes('pasta')
-      ? 'https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?auto=format&fit=crop&w=900&q=85'
-      : name.includes('avocado')
-        ? 'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&w=900&q=85'
-        : name.includes('tomato')
-          ? 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=85'
-          : name.includes('eggplant')
-            ? 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=900&q=85'
-            : 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=85';
-  return { uri: photo };
-}
-
 export function MealCard({ meal }: { meal: Meal }) {
-  const [imageFailed, setImageFailed] = useState(false);
-  const openRecipe = () => Linking.openURL(meal.recipeUrl);
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const [linkError, setLinkError] = useState(false);
+  const openRecipe = async () => {
+    setLinkError(false);
+    try { await Linking.openURL(meal.recipeUrl); } catch { setLinkError(true); }
+  };
   const liked = useAppStore((state) => state.favoriteRecipes.includes(meal.name));
   const toggleFavorite = useAppStore((state) => state.toggleFavoriteRecipe);
   return <View style={s.card}>
-    <Image source={imageFailed || !/^https?:\/\//.test(meal.imageUrl) ? fallbackImage(meal.name) : { uri: meal.imageUrl }} onError={() => setImageFailed(true)} style={s.photo} accessibilityLabel={`Recipe photo for ${meal.name}`} />
+    {failedImageUrl === meal.imageUrl || !meal.imageUrl.startsWith('https://')
+      ? <View style={[s.photo, { alignItems: 'center', justifyContent: 'center' }]}><Text style={s.meta}>Recipe photo unavailable</Text></View>
+      : <Image source={{ uri: meal.imageUrl }} onError={() => setFailedImageUrl(meal.imageUrl)} style={s.photo} accessibilityLabel={`Recipe photo for ${meal.name} from ${meal.sourceName}`} />}
     <View style={s.content}>
       <View style={s.header}>
         <Text style={s.title}>{meal.name}</Text>
         <View style={s.headerActions}>
-          <Text style={s.price}>€{meal.price.toFixed(2)}</Text>
+          <Text style={s.price}>{meal.price > 0 ? `€${meal.price.toFixed(2)}${meal.priceIsPartial ? '*' : ''}` : '—'}</Text>
           <Pressable onPress={() => toggleFavorite(meal.name)} style={[s.likeButton, liked && s.likeButtonActive]} accessibilityRole="button" accessibilityLabel={liked ? 'Remove from favorites' : 'Add to favorites'}>
             <Text style={[s.likeText, liked && s.likeTextActive]}>{liked ? '♥' : '♡'}</Text>
           </Pressable>
@@ -45,16 +35,18 @@ export function MealCard({ meal }: { meal: Meal }) {
       <View style={s.metaRow}>
         <Metadata source={assets.clock}>{meal.prepTimeMinutes} min</Metadata>
         <Metadata source={assets.user}>{meal.servings} servings</Metadata>
-        <Text style={s.calories}>{meal.calories} kcal / serving</Text>
-        <Metadata source={assets.cash}>€{meal.price.toFixed(2)} total</Metadata>
+        {meal.calories !== null && <Text style={s.calories}>{meal.calories} kcal / serving (source)</Text>}
+        {meal.price > 0 && <Metadata source={assets.cash}>Estimated ingredients{meal.priceIsPartial ? ' (partial)' : ''}</Metadata>}
       </View>
+      <Text style={s.meta}>Recipe and photo: {meal.sourceName}</Text>
+      {meal.priceIsPartial && <Text style={s.meta}>Some ingredient prices are unavailable.</Text>}
 
       <View style={s.section}>
         <Text style={s.sectionTitle}>Ingredients</Text>
         <View style={s.ingredientList}>
-          {meal.ingredients.map((ingredient, i) => <View key={`${ingredient.product.id}-${i}`} style={s.ingredientRow}>
+          {meal.ingredients.map((ingredient, i) => <View key={`${ingredient.id}-${i}`} style={s.ingredientRow}>
             <View style={s.dot} />
-            <Text style={s.body}><Text style={s.quantity}>{ingredient.quantityLabel}</Text> {ingredient.product.name}</Text>
+            <Text style={s.body}>{ingredient.name} <Text style={s.quantity}>· {ingredient.quantityLabel}</Text></Text>
           </View>)}
         </View>
       </View>
@@ -72,6 +64,7 @@ export function MealCard({ meal }: { meal: Meal }) {
       <Pressable onPress={openRecipe} style={({ pressed }) => [s.recipeButton, pressed && s.pressed]} accessibilityRole="link">
         <Text style={s.recipeButtonText}>View full recipe ↗</Text>
       </Pressable>
+      {linkError && <Text accessibilityRole="alert" style={s.meta}>Unable to open the recipe. Please try again.</Text>}
     </View>
   </View>;
 }

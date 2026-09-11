@@ -7,62 +7,43 @@ import { DayTabs } from '../components/DayTabs';
 import { MealCard } from '../components/MealCard';
 import { useAppStore } from '../lib/store';
 import { generateMealPlan } from '../lib/generateMealPlan';
+import { aggregateQuantities, buildShoppingList } from '../lib/shopping';
 import { colors, fonts, radii, spacing } from '../theme';
 import type { DayPlan, ShoppingItem } from '../lib/types';
 
 const DAYS: DayPlan['day'][] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-function aggregateQuantities(quantities: string[]): string {
-  const groups = new Map<string, { amount: number; unit: string }>();
-  const unmatched: string[] = [];
-  quantities.forEach((quantity) => {
-    const match = quantity.trim().match(/^([0-9]+(?:[.,][0-9]+)?)\s*(.*)$/);
-    if (!match) { unmatched.push(quantity); return; }
-    const amount = Number(match[1].replace(',', '.'));
-    const rawUnit = match[2].trim();
-    if (!rawUnit) { unmatched.push(quantity); return; }
-    const key = rawUnit.toLowerCase().replace(/ies$/, 'y').replace(/s$/, '');
-    const current = groups.get(key);
-    if (current) current.amount += amount;
-    else groups.set(key, { amount, unit: rawUnit });
-  });
-  const formatted = [...groups.values()].map(({ amount, unit }) => `${Number.isInteger(amount) ? amount : amount.toFixed(1)} ${unit}`);
-  return [...formatted, ...unmatched].join(' + ');
-}
-
-function shoppingLabel(item: ShoppingItem): string {
-  const quantity = aggregateQuantities(item.quantities);
-  // Demo quantities already include the ingredient; AI quantities may contain only "200 g".
-  return /[a-zA-Z]/.test(quantity.replace(/[0-9.,\s]/g, '')) ? quantity : `${quantity} ${item.product.name}`;
-}
-
-function ShoppingList({ items, total, onRemove, refreshing }: { items: ShoppingItem[]; total: number; onRemove: (id: string) => void; refreshing: boolean }) {
+export function ShoppingList({ items, total, onRemove, refreshing }: { items: ShoppingItem[]; total: number; onRemove: (id: string) => void; refreshing: boolean }) {
   return <View style={s.shoppingCard}>
     <View style={s.shoppingHeader}>
       <View>
         <Text style={s.cardKicker}>WEEKLY PANTRY</Text>
         <Text style={s.shoppingTitle}>Shopping list</Text>
       </View>
-      <View style={s.totalBadge}><Text style={s.totalLabel}>TOTAL</Text><Text style={s.totalValue}>€{total.toFixed(2)}</Text></View>
+      <View style={s.totalBadge}><Text style={s.totalLabel}>KNOWN PACK PRICES</Text><Text style={s.totalValue}>€{total.toFixed(2)}</Text></View>
     </View>
     <Text style={s.shoppingHint}>{refreshing ? 'Updating your plan…' : 'Aggregated quantities for all 14 recipes. Remove anything you do not want.'}</Text>
     <View style={s.shoppingItems}>
-      {items.map((item) => <View key={item.product.id} style={s.shoppingRow}>
+      {items.map((item) => <View key={item.id} style={s.shoppingRow}>
         <View style={s.shoppingDot} />
-        <Text style={s.shoppingProduct}>{shoppingLabel(item)}</Text>
-        <Text style={s.shoppingPrice}>€{item.product.price.amount.toFixed(2)}</Text>
-        <Pressable onPress={() => onRemove(item.product.id)} style={s.removeButton} accessibilityRole="button" accessibilityLabel={`Remove ${item.product.name}`}><Text style={s.removeText}>×</Text></Pressable>
+        <View style={{ flex: 1, gap: 3 }}>
+          <Text style={s.shoppingProduct}>{item.name}</Text>
+          <Text style={s.shoppingHint}>{aggregateQuantities(item.quantities)}</Text>
+          {!item.product && <Text style={s.shoppingHint}>Price unavailable</Text>}
+        </View>
+        <Text style={s.shoppingPrice}>{item.product ? `€${item.product.price.amount.toFixed(2)}` : '—'}</Text>
+        <Pressable disabled={refreshing} onPress={() => onRemove(item.id)} style={s.removeButton} accessibilityRole="button" accessibilityLabel={`Remove ${item.name}`}><Text style={s.removeText}>×</Text></Pressable>
       </View>)}
     </View>
-      <View style={s.totalRow}><Text style={s.totalRowLabel}>Estimated shopping total</Text><Text style={s.totalRowValue}>€{total.toFixed(2)}</Text></View>
+      <View style={s.totalRow}><Text style={s.totalRowLabel}>Known pack subtotal</Text><Text style={s.totalRowValue}>€{total.toFixed(2)}</Text></View>
+      <Text style={s.shoppingHint}>One pack per matched product. Check pack sizes against the quantities above; items without a price are excluded from this subtotal.</Text>
   </View>;
 }
 
 export default function MealPlanScreen() {
   const router = useRouter();
   const plan = useAppStore((s) => s.mealPlan);
-  const budget = useAppStore((s) => s.budget);
   const error = useAppStore((s) => s.generationError);
   const setMealPlan = useAppStore((s) => s.setMealPlan);
   const setGenerating = useAppStore((s) => s.setGenerating);
@@ -72,27 +53,18 @@ export default function MealPlanScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const selectedDay = DAYS[index];
   const selectedPlan = useMemo(() => plan?.days.find((day) => day.day === selectedDay), [plan, selectedDay]);
-  const shopping = useMemo(() => {
-    if (!plan) return { items: [], total: 0 };
-    const map = new Map<string, ShoppingItem>();
-    plan.days.flatMap((day) => day.meals).flatMap((meal) => meal.ingredients).forEach(({ product, quantityLabel }) => {
-      const current = map.get(product.id);
-      if (current) current.quantities.push(quantityLabel);
-      else map.set(product.id, { product, quantities: [quantityLabel] });
-    });
-    const items = [...map.values()].sort((a, b) => a.product.name.localeCompare(b.product.name));
-    const catalogTotal = items.reduce((sum, item) => sum + item.product.price.amount, 0);
-    // Keep the visible weekly estimate strictly below the user's selected budget.
-    return { items, total: Math.min(catalogTotal, Math.max(0, budget - 0.01)) };
-  }, [plan, budget]);
+  const shopping = useMemo(() => plan ? buildShoppingList(plan) : { items: [], total: 0, partial: false }, [plan]);
 
   const removeFromShoppingList = async (productId: string) => {
-    useAppStore.getState().excludeProduct(productId);
+    if (refreshing) return;
     setRefreshing(true);
     setGenerating(true);
     setGenerationError(null);
     try {
-      setMealPlan(await generateMealPlan(useAppStore.getState()));
+      const state = useAppStore.getState();
+      const nextPlan = await generateMealPlan({ ...state, excludedProductIds: [...state.excludedProductIds, productId] });
+      state.excludeProduct(productId);
+      setMealPlan(nextPlan);
     } catch (err) {
       setGenerationError(err instanceof Error ? err.message : 'Impossibile aggiornare il piano.');
     } finally {
@@ -113,7 +85,7 @@ export default function MealPlanScreen() {
   return <Screen green>
     <View style={s.page}>
       <View style={s.hero}>
-        <View style={s.eyebrowRow}><Text style={s.eyebrow}>YOUR WEEKLY MEAL PLAN</Text><Text style={s.weekCost}>€{shopping.total.toFixed(2)} <Text style={s.weekCostUnit}>/ week</Text></Text></View>
+        <View style={s.eyebrowRow}><Text style={s.eyebrow}>YOUR WEEKLY MEAL PLAN</Text><Text style={s.weekCost}>€{shopping.total.toFixed(2)} <Text style={s.weekCostUnit}>known packs</Text></Text></View>
         <Text style={s.title}>Enjoy your meal!</Text><Text style={s.subtitle}>Two meals per day, with complete recipes and ready-to-shop ingredients.</Text>
         {plan.source === 'demo' && <View style={s.demoBadge}><Text style={s.demoBadgeText}>DEMO PLAN · SAMPLE RECIPES</Text></View>}
         <Pressable onPress={() => setShowShopping((visible) => !visible)} style={s.shoppingToggle} accessibilityRole="button" accessibilityLabel={showShopping ? 'Show recipes' : 'Show shopping list'}>
@@ -121,6 +93,7 @@ export default function MealPlanScreen() {
         </Pressable>
       </View>
 
+      {error && <Text accessibilityRole="alert" style={s.emptyText}>{error}</Text>}
       {showShopping ? <ShoppingList items={shopping.items} total={shopping.total} onRemove={removeFromShoppingList} refreshing={refreshing} /> : <View style={s.plannerCard}>
         <View style={s.cardHeader}><View><Text style={s.cardKicker}>TODAY'S PLAN</Text><Text style={s.cardTitle}>{NAMES[index]}</Text></View><View style={s.dayBadge}><Text style={s.dayBadgeText}>{index + 1} / 7</Text></View></View>
         <DayTabs days={DAYS} selectedDay={selectedDay} onSelect={select} />
