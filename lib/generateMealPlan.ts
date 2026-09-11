@@ -8,6 +8,8 @@ interface GenerateMealPlanInput {
   budget: number;
   dietaryNeeds: DietaryNeed;
   nutritionalGoal: NutritionalGoal;
+  favoriteRecipes?: string[];
+  excludedProductIds?: string[];
 }
 
 type RawMeal = {
@@ -40,6 +42,8 @@ User preferences:
 - Weekly budget: €${input.budget}
 - Dietary needs: ${input.dietaryNeeds}
 - Nutritional goal: ${input.nutritionalGoal}
+- Recipes the user liked and would like to see again next week: ${(input.favoriteRecipes || []).join(', ') || 'none'}
+- Product IDs the user removed from the shopping list and must never use: ${(input.excludedProductIds || []).join(', ') || 'none'}
 
 Available products (id|name|brand|price|kcal per 100g):
 ${buildProductSummary(products)}
@@ -111,7 +115,8 @@ function parseAndValidate(raw: unknown, products: Product[]): MealPlan {
 }
 
 function createDemoMealPlan(input: GenerateMealPlanInput): MealPlan {
-  const products = filterProducts({ dietaryNeeds: input.dietaryNeeds, nutritionalGoal: input.nutritionalGoal });
+  const products = filterProducts({ dietaryNeeds: input.dietaryNeeds, nutritionalGoal: input.nutritionalGoal, excludedProductIds: input.excludedProductIds });
+  if (products.length === 0) throw new Error('Non ci sono abbastanza alimenti compatibili: rimuovi qualche esclusione dalla lista della spesa.');
   const pick = (index: number) => products[index % products.length];
   const recipes = [
     ['Creamy tomato pasta', 25, 2, ['200 g pasta', '1 tomato', '30 g cheese'], ['Boil the pasta until just tender.', 'Warm the tomato in a pan and season to taste.', 'Toss the pasta with the sauce and finish with cheese.'], 'https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?auto=format&fit=crop&w=900&q=80', 'https://www.bbcgoodfood.com/recipes/collection/pasta-recipes'],
@@ -122,9 +127,11 @@ function createDemoMealPlan(input: GenerateMealPlanInput): MealPlan {
     ['Fresh corn and tomato salad', 15, 2, ['150 g corn', '2 tomatoes', '1 avocado'], ['Chop the vegetables into bite-size pieces.', 'Combine in a bowl with seasoning.', 'Rest for five minutes before serving.'], 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=80', 'https://www.loveandlemons.com/green-salad-recipe/'],
     ['Simple fish and veggie plate', 25, 2, ['2 fish fillets', '1 potato', '1 carrot'], ['Steam the vegetables until tender.', 'Cook the fish in a hot pan.', 'Plate together and add your favorite herbs.'], 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=80', 'https://www.bbcgoodfood.com/recipes/collection/healthy-fish-recipes'],
   ] as const;
+  const favorites = new Set(input.favoriteRecipes || []);
+  const orderedRecipes = [...recipes].sort((a, b) => Number(favorites.has(b[0])) - Number(favorites.has(a[0])));
   let cursor = 0;
   const days = DAYS.map((day, dayIndex) => {
-    const meals = [recipes[dayIndex], recipes[(dayIndex + 2) % recipes.length]].map((recipe, mealIndex) => {
+    const meals = [orderedRecipes[dayIndex % orderedRecipes.length], orderedRecipes[(dayIndex + 2) % orderedRecipes.length]].map((recipe, mealIndex) => {
       const ingredients = recipe[3].map((quantityLabel, ingredientIndex) => ({ product: pick(cursor + ingredientIndex), quantityLabel }));
       cursor += recipe[3].length;
       return { id: `demo-${day.toLowerCase()}-${mealIndex}`, name: recipe[0], prepTimeMinutes: recipe[1], servings: recipe[2], calories: estimateCalories(ingredients, recipe[2]), price: 4.5 + dayIndex * 0.35 + mealIndex * 0.85, ingredients, steps: [...recipe[4]], imageUrl: recipe[5], recipeUrl: recipe[6] };
@@ -136,7 +143,8 @@ function createDemoMealPlan(input: GenerateMealPlanInput): MealPlan {
 
 export async function generateMealPlan(input: GenerateMealPlanInput): Promise<MealPlan> {
   if (!OPENAI_API_KEY) return createDemoMealPlan(input);
-  const candidateProducts = filterProducts({ dietaryNeeds: input.dietaryNeeds, nutritionalGoal: input.nutritionalGoal });
+  const candidateProducts = filterProducts({ dietaryNeeds: input.dietaryNeeds, nutritionalGoal: input.nutritionalGoal, excludedProductIds: input.excludedProductIds });
+  if (candidateProducts.length === 0) throw new Error('Non ci sono abbastanza alimenti compatibili: rimuovi qualche esclusione dalla lista della spesa.');
   const response = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${OPENAI_API_KEY}` }, body: JSON.stringify({ model: 'gpt-4o-mini', messages: [{ role: 'system', content: buildPrompt(input, candidateProducts) }], temperature: 0.7, response_format: { type: 'json_schema', json_schema: { name: 'weekly_meal_plan', strict: true, schema: mealPlanSchema } } }) });
   if (!response.ok) { const detail = await response.text().catch(() => ''); throw new Error(`Meal generation failed (${response.status}). ${detail.slice(0, 120)}`); }
   const data = await response.json();

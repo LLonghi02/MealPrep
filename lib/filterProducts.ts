@@ -62,6 +62,7 @@ export interface FilterOptions {
   dietaryNeeds: DietaryNeed;
   nutritionalGoal: NutritionalGoal;
   maxWeeklyBudget?: number;
+  excludedProductIds?: string[];
 }
 
 /**
@@ -70,7 +71,8 @@ export interface FilterOptions {
  * catalogo vincolato per il modello AI: nessun ingrediente escluso può entrare nel piano.
  */
 export function filterProducts(options: FilterOptions): Product[] {
-  return products.filter((product) => matchesDietaryNeed(product, options.dietaryNeeds) && matchesNutritionalGoal(product, options.nutritionalGoal));
+  const excluded = new Set(options.excludedProductIds || []);
+  return products.filter((product) => !excluded.has(product.id) && matchesDietaryNeed(product, options.dietaryNeeds) && matchesNutritionalGoal(product, options.nutritionalGoal));
 }
 
 export function getAllProducts(): Product[] {

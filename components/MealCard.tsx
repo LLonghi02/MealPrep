@@ -3,6 +3,7 @@ import { Image, ImageSourcePropType, Linking, Pressable, View, Text, StyleSheet 
 import { colors, fonts, radii, spacing } from '../theme';
 import { assets } from '../assets/figma';
 import type { Meal } from '../lib/types';
+import { useAppStore } from '../lib/store';
 
 function Metadata({ source, children }: { source: ImageSourcePropType; children: React.ReactNode }) {
   return <View style={s.metaItem}><Image source={source} style={s.icon} /><Text style={s.meta}>{children}</Text></View>;
@@ -10,12 +11,19 @@ function Metadata({ source, children }: { source: ImageSourcePropType; children:
 
 export function MealCard({ meal }: { meal: Meal }) {
   const openRecipe = () => Linking.openURL(meal.recipeUrl);
+  const liked = useAppStore((state) => state.favoriteRecipes.includes(meal.name));
+  const toggleFavorite = useAppStore((state) => state.toggleFavoriteRecipe);
   return <View style={s.card}>
     <Image source={{ uri: meal.imageUrl }} style={s.photo} accessibilityLabel={`Foto di ${meal.name}`} />
     <View style={s.content}>
       <View style={s.header}>
         <Text style={s.title}>{meal.name}</Text>
-        <Text style={s.price}>€{meal.price.toFixed(2)}</Text>
+        <View style={s.headerActions}>
+          <Text style={s.price}>€{meal.price.toFixed(2)}</Text>
+          <Pressable onPress={() => toggleFavorite(meal.name)} style={[s.likeButton, liked && s.likeButtonActive]} accessibilityRole="button" accessibilityLabel={liked ? 'Rimuovi dai preferiti' : 'Metti mi piace alla ricetta'}>
+            <Text style={[s.likeText, liked && s.likeTextActive]}>{liked ? '♥' : '♡'}</Text>
+          </Pressable>
+        </View>
       </View>
       <View style={s.metaRow}>
         <Metadata source={assets.clock}>{meal.prepTimeMinutes} min</Metadata>
@@ -55,12 +63,13 @@ const s = StyleSheet.create({
   card: { backgroundColor: colors.card, borderRadius: radii.lg, overflow: 'hidden', shadowColor: '#16351D', shadowOpacity: 0.06, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
   photo: { width: '100%', height: 170, backgroundColor: colors.chipBackground },
   content: { padding: spacing.md, gap: 4 },
-  header: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
+  header: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }, headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { flex: 1, fontFamily: fonts.semiBold, fontSize: 18, lineHeight: 24, color: colors.text },
   price: { fontFamily: fonts.semiBold, fontSize: 16, lineHeight: 22, color: colors.primaryDark },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 }, icon: { width: 15, height: 15 }, meta: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17, color: colors.textMuted },
   calories: { fontFamily: fonts.semiBold, fontSize: 12, lineHeight: 17, color: colors.primaryDark },
+  likeButton: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.chipBackground, alignItems: 'center', justifyContent: 'center' }, likeButtonActive: { backgroundColor: colors.chipBackgroundSelected }, likeText: { fontSize: 21, lineHeight: 23, color: colors.textMuted }, likeTextActive: { color: colors.primaryDark },
   section: { gap: 10, marginTop: 22 }, sectionTitle: { fontFamily: fonts.semiBold, fontSize: 14, lineHeight: 19, color: colors.text }, ingredientList: { gap: 7 },
   ingredientRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 }, dot: { width: 5, height: 5, borderRadius: 3, backgroundColor: colors.primary, marginTop: 8 },
   body: { flex: 1, fontFamily: fonts.regular, fontSize: 14, lineHeight: 21, color: colors.textMuted }, quantity: { fontFamily: fonts.medium, color: colors.text }, steps: { gap: 12 }, step: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },

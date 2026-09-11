@@ -77,6 +77,8 @@ export interface OnboardingState {
   budget: number;
   dietaryNeeds: DietaryNeed;
   nutritionalGoal: NutritionalGoal;
+  favoriteRecipes?: string[];
+  excludedProductIds?: string[];
 }
 
 export interface ShoppingItem {
