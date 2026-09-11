@@ -56,6 +56,17 @@ Rules:
 - Respond with JSON only. No markdown or commentary.`;
 }
 
+function estimateCalories(ingredients: { product: Product; quantityLabel: string }[], servings: number): number {
+  const total = ingredients.reduce((sum, ingredient) => {
+    const match = ingredient.quantityLabel.toLowerCase().match(/([0-9]+(?:[.,][0-9]+)?)/);
+    const amount = match ? Number(match[1].replace(',', '.')) : 1;
+    const label = ingredient.quantityLabel.toLowerCase();
+    const grams = label.includes('kg') ? amount * 1000 : label.includes('g') ? amount : amount * ingredient.product.netContent.value;
+    return sum + (grams / 100) * ingredient.product.nutrition.energyKcal100g;
+  }, 0);
+  return Math.max(0, Math.round(total / Math.max(1, servings)));
+}
+
 const mealPlanSchema = {
   type: 'object', additionalProperties: false, required: ['weeklyCost', 'days'],
   properties: {
@@ -92,7 +103,8 @@ function parseAndValidate(raw: unknown, products: Product[]): MealPlan {
         return product ? { product, quantityLabel: meal.ingredientQuantities?.[index] || product.quantity } : null;
       }).filter((ingredient): ingredient is NonNullable<typeof ingredient> => Boolean(ingredient));
       if (ingredients.length < 3) throw new Error(`The recipe for ${meal.name} uses unavailable ingredients.`);
-      return { id: meal.id, name: meal.name, prepTimeMinutes: Math.max(1, Math.round(meal.prepTimeMinutes)), servings: Math.max(1, Math.round(meal.servings)), price: Math.max(0, Number(meal.price)), steps: meal.steps, ingredients, imageUrl: meal.imageUrl, recipeUrl: meal.recipeUrl };
+      const servings = Math.max(1, Math.round(meal.servings));
+      return { id: meal.id, name: meal.name, prepTimeMinutes: Math.max(1, Math.round(meal.prepTimeMinutes)), servings, calories: estimateCalories(ingredients, servings), price: Math.max(0, Number(meal.price)), steps: meal.steps, ingredients, imageUrl: meal.imageUrl, recipeUrl: meal.recipeUrl };
     }) };
   });
   return { weeklyCost: Math.max(0, Number(plan.weeklyCost)), days, source: 'llm' };
@@ -115,7 +127,7 @@ function createDemoMealPlan(input: GenerateMealPlanInput): MealPlan {
     const meals = [recipes[dayIndex], recipes[(dayIndex + 2) % recipes.length]].map((recipe, mealIndex) => {
       const ingredients = recipe[3].map((quantityLabel, ingredientIndex) => ({ product: pick(cursor + ingredientIndex), quantityLabel }));
       cursor += recipe[3].length;
-      return { id: `demo-${day.toLowerCase()}-${mealIndex}`, name: recipe[0], prepTimeMinutes: recipe[1], servings: recipe[2], price: 4.5 + dayIndex * 0.35 + mealIndex * 0.85, ingredients, steps: [...recipe[4]], imageUrl: recipe[5], recipeUrl: recipe[6] };
+      return { id: `demo-${day.toLowerCase()}-${mealIndex}`, name: recipe[0], prepTimeMinutes: recipe[1], servings: recipe[2], calories: estimateCalories(ingredients, recipe[2]), price: 4.5 + dayIndex * 0.35 + mealIndex * 0.85, ingredients, steps: [...recipe[4]], imageUrl: recipe[5], recipeUrl: recipe[6] };
     });
     return { day, meals };
   });

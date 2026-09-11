@@ -54,6 +54,7 @@ export interface Meal {
   name: string;
   prepTimeMinutes: number;
   servings: number;
+  calories: number;
   price: number;
   ingredients: Ingredient[];
   steps: string[];
