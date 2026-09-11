@@ -31,6 +31,12 @@ function aggregateQuantities(quantities: string[]): string {
   return [...formatted, ...unmatched].join(' + ');
 }
 
+function shoppingLabel(item: ShoppingItem): string {
+  const quantity = aggregateQuantities(item.quantities);
+  // Demo quantities already include the ingredient; AI quantities may contain only "200 g".
+  return /[a-zA-Z]/.test(quantity.replace(/[0-9.,\s]/g, '')) ? quantity : `${quantity} ${item.product.name}`;
+}
+
 function ShoppingList({ items, total, onRemove, refreshing }: { items: ShoppingItem[]; total: number; onRemove: (id: string) => void; refreshing: boolean }) {
   return <View style={s.shoppingCard}>
     <View style={s.shoppingHeader}>
@@ -44,7 +50,7 @@ function ShoppingList({ items, total, onRemove, refreshing }: { items: ShoppingI
     <View style={s.shoppingItems}>
       {items.map((item) => <View key={item.product.id} style={s.shoppingRow}>
         <View style={s.shoppingDot} />
-        <Text style={s.shoppingProduct}>{aggregateQuantities(item.quantities) || item.product.name}</Text>
+        <Text style={s.shoppingProduct}>{shoppingLabel(item)}</Text>
         <Text style={s.shoppingPrice}>€{item.product.price.amount.toFixed(2)}</Text>
         <Pressable onPress={() => onRemove(item.product.id)} style={s.removeButton} accessibilityRole="button" accessibilityLabel={`Rimuovi ${item.product.name}`}><Text style={s.removeText}>×</Text></Pressable>
       </View>)}

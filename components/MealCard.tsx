@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, ImageSourcePropType, Linking, Pressable, View, Text, StyleSheet } from 'react-native';
 import { colors, fonts, radii, spacing } from '../theme';
 import { assets } from '../assets/figma';
@@ -9,12 +9,24 @@ function Metadata({ source, children }: { source: ImageSourcePropType; children:
   return <View style={s.metaItem}><Image source={source} style={s.icon} /><Text style={s.meta}>{children}</Text></View>;
 }
 
+function fallbackImage(recipeName: string): ImageSourcePropType {
+  const name = recipeName.toLowerCase();
+  if (name.includes('fish')) return assets.fish;
+  if (name.includes('pasta')) return assets.pasta;
+  if (name.includes('avocado')) return assets.avocado;
+  if (name.includes('tomato')) return assets.tomato;
+  if (name.includes('eggplant')) return assets.eggplant;
+  if (name.includes('carrot')) return assets.carrot;
+  return assets.corn;
+}
+
 export function MealCard({ meal }: { meal: Meal }) {
+  const [imageFailed, setImageFailed] = useState(false);
   const openRecipe = () => Linking.openURL(meal.recipeUrl);
   const liked = useAppStore((state) => state.favoriteRecipes.includes(meal.name));
   const toggleFavorite = useAppStore((state) => state.toggleFavoriteRecipe);
   return <View style={s.card}>
-    <Image source={{ uri: meal.imageUrl }} style={s.photo} accessibilityLabel={`Foto di ${meal.name}`} />
+    <Image source={imageFailed || !/^https?:\/\//.test(meal.imageUrl) ? fallbackImage(meal.name) : { uri: meal.imageUrl }} onError={() => setImageFailed(true)} style={s.photo} accessibilityLabel={`Recipe photo for ${meal.name}`} />
     <View style={s.content}>
       <View style={s.header}>
         <Text style={s.title}>{meal.name}</Text>
