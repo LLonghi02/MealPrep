@@ -12,4 +12,12 @@ export const assets = {
   carrot: require("./carrot.png"),
   steak: require("./steak.png"),
   avocado: require("./avocado.png"),
+  honey: require("./honey.png"),
+  pasta: require("./pasta.png"),
+  pepper: require("./pepper.png"),
+  salt: require("./salt.png"),
+  vegan: require("./vegan.png"),
+  glutenFree: require("./gluten-free.png"),
+  dairyFree: require("./dairy-free.png"),
+  fish: require("./fish.png"),
 };
