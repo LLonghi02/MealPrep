@@ -1,0 +1,3 @@
+Copia qui i file .ttf reali (Promo-Light, Promo-Regular, Promo-Medium,
+Promo-SemiBold, Promo-Bold), estraendoli dai file .woff/.woff2 originali
+tramite un convertitore come https://transfonter.org (output TTF).

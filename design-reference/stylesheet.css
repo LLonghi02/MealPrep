@@ -1,0 +1,117 @@
+@font-face {
+    font-family: 'Promo Extra';
+    src: url('Promo-ExtraLight.eot');
+    src: local('Promo Extra Light'), local('Promo-ExtraLight'),
+        url('Promo-ExtraLight.eot?#iefix') format('embedded-opentype'),
+        url('Promo-ExtraLight.woff2') format('woff2'),
+        url('Promo-ExtraLight.woff') format('woff'),
+        url('Promo-ExtraLight.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Promo';
+    src: url('Promo-Light.eot');
+    src: local('Promo Light'), local('Promo-Light'),
+        url('Promo-Light.eot?#iefix') format('embedded-opentype'),
+        url('Promo-Light.woff2') format('woff2'),
+        url('Promo-Light.woff') format('woff'),
+        url('Promo-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Promo';
+    src: url('Promo-Bold.eot');
+    src: local('Promo Bold'), local('Promo-Bold'),
+        url('Promo-Bold.eot?#iefix') format('embedded-opentype'),
+        url('Promo-Bold.woff2') format('woff2'),
+        url('Promo-Bold.woff') format('woff'),
+        url('Promo-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Promo';
+    src: url('Promo-Thin.eot');
+    src: local('Promo Thin'), local('Promo-Thin'),
+        url('Promo-Thin.eot?#iefix') format('embedded-opentype'),
+        url('Promo-Thin.woff2') format('woff2'),
+        url('Promo-Thin.woff') format('woff'),
+        url('Promo-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Promo';
+    src: url('Promo-Medium.eot');
+    src: local('Promo Medium'), local('Promo-Medium'),
+        url('Promo-Medium.eot?#iefix') format('embedded-opentype'),
+        url('Promo-Medium.woff2') format('woff2'),
+        url('Promo-Medium.woff') format('woff'),
+        url('Promo-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Promo';
+    src: url('Promo-Regular.eot');
+    src: local('Promo'), local('Promo-Regular'),
+        url('Promo-Regular.eot?#iefix') format('embedded-opentype'),
+        url('Promo-Regular.woff2') format('woff2'),
+        url('Promo-Regular.woff') format('woff'),
+        url('Promo-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Promo Semi';
+    src: url('Promo-SemiBold.eot');
+    src: local('Promo Semi Bold'), local('Promo-SemiBold'),
+        url('Promo-SemiBold.eot?#iefix') format('embedded-opentype'),
+        url('Promo-SemiBold.woff2') format('woff2'),
+        url('Promo-SemiBold.woff') format('woff'),
+        url('Promo-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Promo Normal';
+    src: url('Promo-Normal.eot');
+    src: local('Promo Normal'), local('Promo-Normal'),
+        url('Promo-Normal.eot?#iefix') format('embedded-opentype'),
+        url('Promo-Normal.woff2') format('woff2'),
+        url('Promo-Normal.woff') format('woff'),
+        url('Promo-Normal.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Promo Ultra';
+    src: url('Promo-UltraLight.eot');
+    src: local('Promo Ultra Light'), local('Promo-UltraLight'),
+        url('Promo-UltraLight.eot?#iefix') format('embedded-opentype'),
+        url('Promo-UltraLight.woff2') format('woff2'),
+        url('Promo-UltraLight.woff') format('woff'),
+        url('Promo-UltraLight.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
