@@ -47,7 +47,7 @@ export default function DietaryNeedsScreen() {
   const router = useRouter();
   const selected = useAppStore((s) => s.dietaryNeeds);
   const confirmed = useAppStore((s) => s.dietaryConfirmed);
-  const select = useAppStore((s) => s.setDietaryNeeds);
+  const toggle = useAppStore((s) => s.toggleDietaryNeed);
   return (
     <OnboardingScreen
       title="Any dietary needs?"
@@ -55,13 +55,14 @@ export default function DietaryNeedsScreen() {
       disabled={!confirmed}
       onContinue={() => router.push("/nutritional-goals")}
     >
-      <View style={optionLayout.grid} accessibilityRole="radiogroup">
+      <View style={optionLayout.grid}>
         {OPTIONS.map((option) => (
           <View key={option.value} style={optionLayout.cell}>
             <OptionChip
               {...option}
-              selected={confirmed && selected === option.value}
-              onPress={() => select(option.value)}
+              selected={confirmed && selected.includes(option.value)}
+              accessibilityRole="checkbox"
+              onPress={() => toggle(option.value)}
             />
           </View>
         ))}

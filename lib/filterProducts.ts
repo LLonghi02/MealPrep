@@ -59,8 +59,8 @@ function matchesNutritionalGoal(product: Product, goal: NutritionalGoal): boolea
 }
 
 export interface FilterOptions {
-  dietaryNeeds: DietaryNeed;
-  nutritionalGoal: NutritionalGoal;
+  dietaryNeeds: DietaryNeed[];
+  nutritionalGoals: NutritionalGoal[];
   maxWeeklyBudget?: number;
   excludedProductIds?: string[];
 }
@@ -72,7 +72,11 @@ export interface FilterOptions {
  */
 export function filterProducts(options: FilterOptions): Product[] {
   const excluded = new Set(options.excludedProductIds || []);
-  return products.filter((product) => !excluded.has(product.id) && matchesDietaryNeed(product, options.dietaryNeeds) && matchesNutritionalGoal(product, options.nutritionalGoal));
+  const dietaryNeeds = options.dietaryNeeds.filter((need) => need !== 'none');
+  const nutritionalGoals = options.nutritionalGoals.filter((goal) => goal !== 'none');
+  return products.filter((product) => !excluded.has(product.id)
+    && dietaryNeeds.every((need) => matchesDietaryNeed(product, need))
+    && nutritionalGoals.every((goal) => matchesNutritionalGoal(product, goal)));
 }
 
 export function getAllProducts(): Product[] {

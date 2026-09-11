@@ -2,14 +2,15 @@ import React from 'react';
 import { Image, ImageSourcePropType, Pressable, Text, StyleSheet } from 'react-native';
 import { colors, fonts } from '../theme';
 
-export function OptionChip({ label, icon, image, selected, onPress }: {
+export function OptionChip({ label, icon, image, selected, onPress, accessibilityRole = 'checkbox' }: {
   label: string;
   icon?: string;
   image?: ImageSourcePropType;
   selected: boolean;
   onPress: () => void;
+  accessibilityRole?: 'checkbox' | 'radio';
 }) {
-  return <Pressable accessibilityRole="radio" aria-checked={selected} accessibilityState={{ checked: selected }} accessibilityLabel={label}
+  return <Pressable accessibilityRole={accessibilityRole} aria-checked={selected} accessibilityState={{ checked: selected }} accessibilityLabel={label}
     onPress={onPress} style={({ pressed }) => [s.chip, selected && s.selected, pressed && s.pressed]}>
     {image ? <Image source={image} style={s.image} resizeMode="contain" /> : icon ? <Text style={s.icon}>{icon}</Text> : null}
     <Text style={s.label}>{label}</Text>

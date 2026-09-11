@@ -57,9 +57,9 @@ const OPTIONS: {
 export default function NutritionalGoalsScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const selected = useAppStore((s) => s.nutritionalGoal);
+  const selected = useAppStore((s) => s.nutritionalGoals);
   const confirmed = useAppStore((s) => s.nutritionConfirmed);
-  const select = useAppStore((s) => s.setNutritionalGoal);
+  const toggle = useAppStore((s) => s.toggleNutritionalGoal);
   const error = useAppStore((s) => s.generationError);
   const handleContinue = async () => {
     if (loading || !confirmed) return;
@@ -89,13 +89,14 @@ export default function NutritionalGoalsScreen() {
       error={error}
       onContinue={handleContinue}
     >
-      <View style={optionLayout.grid} accessibilityRole="radiogroup">
+      <View style={optionLayout.grid}>
         {OPTIONS.map((option) => (
           <View key={option.value} style={optionLayout.cell}>
             <OptionChip
               {...option}
-              selected={confirmed && selected === option.value}
-              onPress={() => select(option.value)}
+              selected={confirmed && selected.includes(option.value)}
+              accessibilityRole="checkbox"
+              onPress={() => toggle(option.value)}
             />
           </View>
         ))}

@@ -8,15 +8,15 @@ import type { DietaryNeed, NutritionalGoal, MealPlan } from './types';
 interface AppState {
   // Onboarding
   budget: number;
-  dietaryNeeds: DietaryNeed;
-  nutritionalGoal: NutritionalGoal;
+  dietaryNeeds: DietaryNeed[];
+  nutritionalGoals: NutritionalGoal[];
   favoriteRecipes: string[];
   excludedProductIds: string[];
   dietaryConfirmed: boolean;
   nutritionConfirmed: boolean;
   setBudget: (value: number) => void;
-  setDietaryNeeds: (value: DietaryNeed) => void;
-  setNutritionalGoal: (value: NutritionalGoal) => void;
+  toggleDietaryNeed: (value: DietaryNeed) => void;
+  toggleNutritionalGoal: (value: NutritionalGoal) => void;
   toggleFavoriteRecipe: (name: string) => void;
   excludeProduct: (id: string) => void;
 
@@ -35,8 +35,8 @@ const initialState = {
   budget: 82,
   dietaryConfirmed: false,
   nutritionConfirmed: false,
-  dietaryNeeds: 'none' as DietaryNeed,
-  nutritionalGoal: 'none' as NutritionalGoal,
+  dietaryNeeds: ['none'] as DietaryNeed[],
+  nutritionalGoals: ['none'] as NutritionalGoal[],
   favoriteRecipes: [],
   excludedProductIds: [],
   mealPlan: null,
@@ -48,8 +48,22 @@ export const useAppStore = create<AppState>((set) => ({
   ...initialState,
 
   setBudget: (value) => set({ budget: value }),
-  setDietaryNeeds: (value) => set({ dietaryNeeds: value, dietaryConfirmed: true }),
-  setNutritionalGoal: (value) => set({ nutritionalGoal: value, nutritionConfirmed: true }),
+  toggleDietaryNeed: (value) => set((state) => ({
+    dietaryNeeds: value === 'none'
+      ? ['none']
+      : state.dietaryNeeds.includes(value)
+        ? (state.dietaryNeeds.filter((item) => item !== value).length ? state.dietaryNeeds.filter((item) => item !== value) : ['none'])
+        : [...state.dietaryNeeds.filter((item) => item !== 'none'), value],
+    dietaryConfirmed: true,
+  })),
+  toggleNutritionalGoal: (value) => set((state) => ({
+    nutritionalGoals: value === 'none'
+      ? ['none']
+      : state.nutritionalGoals.includes(value)
+        ? (state.nutritionalGoals.filter((item) => item !== value).length ? state.nutritionalGoals.filter((item) => item !== value) : ['none'])
+        : [...state.nutritionalGoals.filter((item) => item !== 'none'), value],
+    nutritionConfirmed: true,
+  })),
   toggleFavoriteRecipe: (name) => set((state) => ({ favoriteRecipes: state.favoriteRecipes.includes(name) ? state.favoriteRecipes.filter((item) => item !== name) : [...state.favoriteRecipes, name] })),
   excludeProduct: (id) => set((state) => ({ excludedProductIds: state.excludedProductIds.includes(id) ? state.excludedProductIds : [...state.excludedProductIds, id] })),
 

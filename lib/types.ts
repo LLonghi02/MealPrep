@@ -17,6 +17,9 @@ export type NutritionalGoal =
   | 'low_carbs'
   | 'low_salt';
 
+export type DietaryNeeds = DietaryNeed[];
+export type NutritionalGoals = NutritionalGoal[];
+
 export interface Product {
   id: string;
   barcode: string;
@@ -79,8 +82,8 @@ export interface MealPlan {
 
 export interface OnboardingState {
   budget: number;
-  dietaryNeeds: DietaryNeed;
-  nutritionalGoal: NutritionalGoal;
+  dietaryNeeds: DietaryNeeds;
+  nutritionalGoals: NutritionalGoals;
   favoriteRecipes?: string[];
   excludedProductIds?: string[];
 }

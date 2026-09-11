@@ -12,12 +12,17 @@ export function eligibleProducts(input: GenerateMealPlanInput): Product[] {
     if (excluded.has(product.id) || !Number.isFinite(product.price?.amount) || product.price.amount <= 0) return false;
     const allergens = product.allergens.map((a) => `${a.id} ${a.name}`.toLowerCase()).join(' ');
     const department = product.department.name;
-    if (['vegan', 'veggie', 'pescatarian'].includes(input.dietaryNeeds)
+    const dietaryNeeds = (Array.isArray(input.dietaryNeeds) ? input.dietaryNeeds : [input.dietaryNeeds]).filter((need) => need !== 'none');
+    if (dietaryNeeds.some((need) => ['vegan', 'veggie', 'pescatarian'].includes(need))
       && ['Meat', 'Deli Meats & Delicatessen'].includes(department)) return false;
-    if (['vegan', 'veggie'].includes(input.dietaryNeeds) && (department === 'Fish' || /fish|pesce|crustace|mollusc/.test(allergens))) return false;
-    if (['vegan', 'dairy_free'].includes(input.dietaryNeeds) && /milk|latte|dairy|lactose/.test(allergens)) return false;
-    if (input.dietaryNeeds === 'vegan' && (department === 'Dairy & Eggs' || /egg|uova/.test(allergens))) return false;
-    if (input.dietaryNeeds === 'gluten_free' && /gluten|glutine/.test(allergens)) return false;
+    if (dietaryNeeds.includes('veggie') || dietaryNeeds.includes('vegan')) {
+      if (department === 'Fish' || /fish|pesce|crustace|mollusc/.test(allergens)) return false;
+    }
+    if (dietaryNeeds.includes('vegan') || dietaryNeeds.includes('dairy_free')) {
+      if (/milk|latte|dairy|lactose/.test(allergens)) return false;
+    }
+    if (dietaryNeeds.includes('vegan') && (department === 'Dairy & Eggs' || /egg|uova/.test(allergens))) return false;
+    if (dietaryNeeds.includes('gluten_free') && /gluten|glutine/.test(allergens)) return false;
     return true;
   });
 }

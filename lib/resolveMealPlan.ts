@@ -8,8 +8,9 @@ const DAYS: MealPlan['days'][number]['day'][] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fr
 
 export interface GenerateMealPlanInput {
   budget: number;
-  dietaryNeeds: DietaryNeed;
-  nutritionalGoal: NutritionalGoal;
+  dietaryNeeds: DietaryNeed[] | DietaryNeed;
+  nutritionalGoals?: NutritionalGoal[];
+  nutritionalGoal?: NutritionalGoal;
   favoriteRecipes?: string[];
   excludedProductIds?: string[];
   recipePreferences?: string;
@@ -18,7 +19,10 @@ export interface GenerateMealPlanInput {
 export function availableRecipes(input: GenerateMealPlanInput): Recipe[] {
   const excluded = new Set(input.excludedProductIds || []);
   const products = new Map(getAllProducts().map((product) => [product.id, product]));
-  return recipes.filter((recipe) => recipe.dietaryNeeds.includes(input.dietaryNeeds)
+  const dietaryNeeds = (Array.isArray(input.dietaryNeeds) ? input.dietaryNeeds : [input.dietaryNeeds]).filter((need) => need !== 'none');
+  const nutritionalGoals = (input.nutritionalGoals || (input.nutritionalGoal ? [input.nutritionalGoal] : [])).filter((goal) => goal !== 'none');
+  return recipes.filter((recipe) => dietaryNeeds.every((need) => recipe.dietaryNeeds.includes(need))
+    && nutritionalGoals.every((goal) => recipe.preferredGoals.includes(goal))
     && recipe.ingredients.every((ingredient) => ingredient.productIds.some((id) => {
       const product = products.get(id);
       return product && Number.isFinite(product.price?.amount) && product.price.amount >= 0;
@@ -66,4 +70,3 @@ export function parseAndValidate(raw: unknown, candidates: Recipe[], source: Mea
   plan.weeklyCost = buildShoppingList(plan).total;
   return plan;
 }
-
