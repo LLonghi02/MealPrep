@@ -2,14 +2,10 @@
 // Costruisce il prompt, chiama l'LLM e valida/parsa la risposta
 // in un oggetto MealPlan tipizzato.
 
-import Constants from 'expo-constants';
-import { filterProducts } from './filterProducts';
-import type { DietaryNeed, NutritionalGoal, MealPlan, Product } from './types';
+import { filterProducts } from "./filterProducts";
+import type { DietaryNeed, MealPlan, NutritionalGoal, Product } from "./types";
 
-const OPENAI_API_KEY =
-  (Constants.expoConfig?.extra?.openaiApiKey as string | undefined) ??
-  process.env.EXPO_PUBLIC_OPENAI_API_KEY;
-
+const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY?.trim();
 interface GenerateMealPlanInput {
   budget: number;
   dietaryNeeds: DietaryNeed;
@@ -22,12 +18,15 @@ function buildProductSummary(products: Product[]): string {
     .slice(0, 300)
     .map(
       (p) =>
-        `${p.id}|${p.name}|${p.brand}|€${p.price.amount}|${p.nutrition.energyKcal100g}kcal/100g`
+        `${p.id}|${p.name}|${p.brand}|€${p.price.amount}|${p.nutrition.energyKcal100g}kcal/100g`,
     )
-    .join('\n');
+    .join("\n");
 }
 
-function buildPrompt(input: GenerateMealPlanInput, products: Product[]): string {
+function buildPrompt(
+  input: GenerateMealPlanInput,
+  products: Product[],
+): string {
   return `Sei un nutrizionista che crea piani alimentari settimanali.
 
 Vincoli utente:
@@ -64,14 +63,16 @@ Rispondi SOLO con un JSON valido in questo formato, senza testo aggiuntivo:
 }
 
 /**
- * Chiama l'API Anthropic/OpenAI e trasforma la risposta in un MealPlan
+ * Chiama l'API OpenAI e trasforma la risposta in un MealPlan
  * completo, risolvendo gli ingredientIds sui prodotti reali del catalogo.
  */
 export async function generateMealPlan(
-  input: GenerateMealPlanInput
+  input: GenerateMealPlanInput,
 ): Promise<MealPlan> {
   if (!OPENAI_API_KEY) {
-    throw new Error('Meal generation is not configured yet. Please contact the app administrator.');
+    throw new Error(
+      "Meal generation is not configured yet. Please contact the app administrator.",
+    );
   }
   const candidateProducts = filterProducts({
     dietaryNeeds: input.dietaryNeeds,
@@ -80,15 +81,15 @@ export async function generateMealPlan(
 
   const prompt = buildPrompt(input, candidateProducts);
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: prompt }],
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
     }),
   });
@@ -98,13 +99,13 @@ export async function generateMealPlan(
   }
 
   const data = await response.json();
-  const raw: string = data.choices?.[0]?.message?.content ?? '';
-  const cleaned = raw.replace(/```json|```/g, '').trim();
+  const raw: string = data.choices?.[0]?.message?.content ?? "";
+  const cleaned = raw.replace(/```json|```/g, "").trim();
 
   const parsed = JSON.parse(cleaned) as {
     weeklyCost: number;
     days: {
-      day: MealPlan['days'][number]['day'];
+      day: MealPlan["days"][number]["day"];
       meals: {
         id: string;
         name: string;
