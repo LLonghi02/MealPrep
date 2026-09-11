@@ -1,21 +1,11 @@
 // app/_layout.tsx
 // Root layout: carica i font e definisce lo stack di navigazione.
-import { useEffect } from 'react';
-import { Stack } from 'expo-router';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-import { fontFiles } from '../theme';
-
-SplashScreen.preventAutoHideAsync();
+import { useFonts } from "expo-font";
+import { Stack } from "expo-router";
+import { fontFiles } from "../theme";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts(fontFiles);
-
-  useEffect(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
 
   if (!fontsLoaded) {
     return null;
