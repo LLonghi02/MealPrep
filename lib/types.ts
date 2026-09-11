@@ -57,6 +57,8 @@ export interface Meal {
   price: number;
   ingredients: Ingredient[];
   steps: string[];
+  imageUrl: string;
+  recipeUrl: string;
 }
 
 export interface DayPlan {
@@ -74,4 +76,9 @@ export interface OnboardingState {
   budget: number;
   dietaryNeeds: DietaryNeed;
   nutritionalGoal: NutritionalGoal;
+}
+
+export interface ShoppingItem {
+  product: Product;
+  quantities: string[];
 }
