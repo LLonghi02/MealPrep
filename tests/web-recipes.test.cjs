@@ -138,3 +138,17 @@ test('client surfaces unavailable searches instead of falling back to one repeat
   try { await assert.rejects(generateMealPlan(input), /Not enough compatible recipes/); }
   finally { global.fetch = original; }
 });
+
+test('client handles an HTML app fallback, malformed JSON and missing plan', async () => {
+  const original = global.fetch;
+  try {
+    for (const status of [200, 404, 502]) {
+      global.fetch = async () => new Response('<!DOCTYPE html><html>MealPrep</html>', {status, headers: {'content-type': 'text/html'}});
+      await assert.rejects(generateMealPlan(input), /Riavvia Expo/);
+    }
+    global.fetch = async () => new Response('<!DOCTYPE html>', {headers: {'content-type': 'application/json'}});
+    await assert.rejects(generateMealPlan(input), /dati non validi/);
+    global.fetch = async () => Response.json({});
+    await assert.rejects(generateMealPlan(input), /piano completo/);
+  } finally { global.fetch = original; }
+});
