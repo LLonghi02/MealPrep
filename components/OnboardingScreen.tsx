@@ -23,7 +23,6 @@ export const optionLayout = StyleSheet.create({
 });
 const s = StyleSheet.create({
   title: { fontFamily: fonts.semiBold, fontSize: 32, lineHeight: 37, minHeight: 45, marginTop: 20, color: colors.text },
-  body: { flex: 1, minHeight: 430, justifyContent: 'center', paddingBottom: 46, paddingTop: 0 },
+  body: { flex: 1, minHeight: 0, justifyContent: 'center', paddingVertical: 24, marginBottom: 24 },
   error: { color: '#A3312B', fontFamily: fonts.regular, fontSize: 14, marginBottom: 16 },
 });
-

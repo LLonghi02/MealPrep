@@ -17,11 +17,11 @@ export function OptionChip({ label, icon, image, selected, onPress }: {
 }
 
 const s = StyleSheet.create({
-  chip: { width: '100%', minHeight: 132, borderRadius: 20, backgroundColor: colors.chipBackground,
+  chip: { width: '100%', height: 104, borderRadius: 20, backgroundColor: colors.chipBackground,
     alignItems: 'center', justifyContent: 'center', gap: 6, padding: 12, borderWidth: 2, borderColor: 'transparent' },
   selected: { borderColor: colors.primary, backgroundColor: colors.chipBackgroundSelected },
   pressed: { opacity: 0.8 },
-  image: { width: 58, height: 58 },
+  image: { width: 48, height: 48 },
   icon: { fontSize: 32, lineHeight: 36 },
   label: { fontFamily: fonts.medium, fontSize: 16, lineHeight: 22, color: colors.text, textAlign: 'center' },
 });
