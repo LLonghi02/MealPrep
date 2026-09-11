@@ -1,4 +1,5 @@
 import { filterProducts } from './filterProducts';
+import { mealCost } from './cost';
 import type { DietaryNeed, MealPlan, NutritionalGoal, Product } from './types';
 
 const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY?.trim();
@@ -108,7 +109,7 @@ function parseAndValidate(raw: unknown, products: Product[]): MealPlan {
       }).filter((ingredient): ingredient is NonNullable<typeof ingredient> => Boolean(ingredient));
       if (ingredients.length < 3) throw new Error(`The recipe for ${meal.name} uses unavailable ingredients.`);
       const servings = Math.max(1, Math.round(meal.servings));
-      return { id: meal.id, name: meal.name, prepTimeMinutes: Math.max(1, Math.round(meal.prepTimeMinutes)), servings, calories: estimateCalories(ingredients, servings), price: Math.max(0, Number(meal.price)), steps: meal.steps, ingredients, imageUrl: meal.imageUrl, recipeUrl: meal.recipeUrl };
+      return { id: meal.id, name: meal.name, prepTimeMinutes: Math.max(1, Math.round(meal.prepTimeMinutes)), servings, calories: estimateCalories(ingredients, servings), price: mealCost(ingredients), steps: meal.steps, ingredients, imageUrl: meal.imageUrl, recipeUrl: meal.recipeUrl };
     }) };
   });
   return { weeklyCost: Math.max(0, Number(plan.weeklyCost)), days, source: 'llm' };
@@ -118,6 +119,25 @@ function createDemoMealPlan(input: GenerateMealPlanInput): MealPlan {
   const products = filterProducts({ dietaryNeeds: input.dietaryNeeds, nutritionalGoal: input.nutritionalGoal, excludedProductIds: input.excludedProductIds });
   if (products.length === 0) throw new Error('Non ci sono abbastanza alimenti compatibili: rimuovi qualche esclusione dalla lista della spesa.');
   const pick = (index: number) => products[index % products.length];
+  const ingredientAliases: Record<string, string[]> = {
+    tomato: ['tomato', 'pomodoro'], corn: ['corn', 'mais'], carrot: ['carrot', 'carota'], avocado: ['avocado'],
+    cheese: ['cheese', 'formaggio'], eggplant: ['eggplant', 'melanzana'], pasta: ['pasta', 'linguine', 'spaghetti'],
+    fish: ['fish', 'salmon', 'cod', 'tuna', 'pesce'], potato: ['potato', 'patata'], bread: ['bread', 'pane', 'toast'],
+  };
+  const findIngredientProduct = (quantityLabel: string, fallbackIndex: number) => {
+    const words = quantityLabel.toLowerCase().replace(/[0-9.,]/g, '').trim().split(/\s+/);
+    const keyword = words.find((word) => ingredientAliases[word]) || words[words.length - 1];
+    const aliases = ingredientAliases[keyword] || [keyword];
+    const match = products
+      .map((product) => {
+        const haystack = [product.name, product.category?.name, product.department?.name].filter(Boolean).join(' ').toLowerCase();
+        const juicePenalty = product.name.toLowerCase().includes('juice') ? 1 : 0;
+        const score = aliases.reduce((total, alias) => total + (haystack.includes(alias) ? (product.name.toLowerCase().includes(alias) ? 3 : 1) : 0), 0) - juicePenalty;
+        return { product, score };
+      })
+      .sort((a, b) => b.score - a.score)[0];
+    return match && match.score > 0 ? match.product : pick(fallbackIndex);
+  };
   const recipes = [
     ['Creamy tomato pasta', 25, 2, ['200 g pasta', '1 tomato', '30 g cheese'], ['Boil the pasta until just tender.', 'Warm the tomato in a pan and season to taste.', 'Toss the pasta with the sauce and finish with cheese.'], 'https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?auto=format&fit=crop&w=900&q=80', 'https://www.bbcgoodfood.com/recipes/collection/pasta-recipes'],
     ['Golden veggie grain bowl', 30, 2, ['150 g corn', '1 carrot', '100 g avocado'], ['Cook the grain base until fluffy.', 'Roast the vegetables until lightly golden.', 'Build the bowl and finish with avocado.'], 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=80', 'https://www.loveandlemons.com/buddha-bowl-recipe/'],
@@ -132,13 +152,13 @@ function createDemoMealPlan(input: GenerateMealPlanInput): MealPlan {
   let cursor = 0;
   const days = DAYS.map((day, dayIndex) => {
     const meals = [orderedRecipes[dayIndex % orderedRecipes.length], orderedRecipes[(dayIndex + 2) % orderedRecipes.length]].map((recipe, mealIndex) => {
-      const ingredients = recipe[3].map((quantityLabel, ingredientIndex) => ({ product: pick(cursor + ingredientIndex), quantityLabel }));
+      const ingredients = recipe[3].map((quantityLabel, ingredientIndex) => ({ product: findIngredientProduct(quantityLabel, cursor + ingredientIndex), quantityLabel }));
       cursor += recipe[3].length;
-      return { id: `demo-${day.toLowerCase()}-${mealIndex}`, name: recipe[0], prepTimeMinutes: recipe[1], servings: recipe[2], calories: estimateCalories(ingredients, recipe[2]), price: 4.5 + dayIndex * 0.35 + mealIndex * 0.85, ingredients, steps: [...recipe[4]], imageUrl: recipe[5], recipeUrl: recipe[6] };
+      return { id: `demo-${day.toLowerCase()}-${mealIndex}`, name: recipe[0], prepTimeMinutes: recipe[1], servings: recipe[2], calories: estimateCalories(ingredients, recipe[2]), price: mealCost(ingredients), ingredients, steps: [...recipe[4]], imageUrl: recipe[5], recipeUrl: recipe[6] };
     });
     return { day, meals };
   });
-  return { weeklyCost: 79.9, days, source: 'demo' };
+  return { weeklyCost: Math.min(79.9, Math.max(0, input.budget - 0.01)), days, source: 'demo' };
 }
 
 export async function generateMealPlan(input: GenerateMealPlanInput): Promise<MealPlan> {
