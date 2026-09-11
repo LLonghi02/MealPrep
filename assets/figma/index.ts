@@ -17,7 +17,7 @@ export const assets = {
   pepper: require("./pepper.png"),
   salt: require("./salt.png"),
   vegan: require("./vegan.png"),
-  glutenFree: require("./gluten-free.png"),
-  dairyFree: require("./dairy-free.png"),
+  glutenFree: require("./gluten.png"),
+  dairyFree: require("./milk.png"),
   fish: require("./fish.png"),
 };
