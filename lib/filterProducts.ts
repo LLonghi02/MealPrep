@@ -7,26 +7,32 @@ import type { Product, DietaryNeed, NutritionalGoal } from './types';
 
 const products = catalog as Product[];
 
-function matchesDietaryNeed(product: Product, need: DietaryNeed): boolean {
-  const labelNames = product.labels.map((l) => l.name);
-  const allergens = product.allergens.map((a) => `${a.name} ${a.id}`.toLowerCase());
+function normalizedAllergens(product: Product): string[] {
+  return product.allergens.flatMap((allergen) => [allergen.name, allergen.id]).map((value) => value.toLowerCase());
+}
 
+function hasAllergen(product: Product, ...terms: string[]): boolean {
+  const allergens = normalizedAllergens(product);
+  return allergens.some((allergen) => terms.some((term) => allergen.includes(term)));
+}
+
+function hasLabel(product: Product, label: string): boolean {
+  return product.labels.some((item) => item.name.toLowerCase() === label.toLowerCase() || item.id.toLowerCase().includes(label.toLowerCase()));
+}
+
+function matchesDietaryNeed(product: Product, need: DietaryNeed): boolean {
   switch (need) {
     case 'veggie':
-      return labelNames.includes('Vegetarian') || labelNames.includes('Vegan');
+      return hasLabel(product, 'vegetarian') || hasLabel(product, 'vegan');
     case 'vegan':
-      return labelNames.includes('Vegan');
+      return hasLabel(product, 'vegan');
     case 'pescatarian':
-      // Niente carne: accettiamo pesce, vegetariano o vegano
-      return (
-        product.department.name === 'Fish' ||
-        labelNames.includes('Vegetarian') ||
-        labelNames.includes('Vegan')
-      );
+      // Niente carne: accettiamo pesce, vegetariano o vegano.
+      return product.department.name === 'Fish' || hasLabel(product, 'vegetarian') || hasLabel(product, 'vegan');
     case 'gluten_free':
-      return !allergens.includes('glutine');
+      return !hasAllergen(product, 'gluten', 'glutine', 'cereals containing gluten');
     case 'dairy_free':
-      return !allergens.includes('latte');
+      return !hasAllergen(product, 'milk', 'latte', 'dairy', 'lactose');
     case 'none':
     default:
       return true;
@@ -59,16 +65,12 @@ export interface FilterOptions {
 }
 
 /**
- * Ritorna il sottoinsieme di prodotti compatibili con le scelte utente.
- * Il budget non filtra i singoli prodotti (serve al momento della
- * generazione del piano, per limitare il costo totale settimanale).
+ * Ritorna solo prodotti compatibili con entrambe le scelte dell'utente.
+ * Il generatore usa questo sottoinsieme sia per le ricette demo sia come
+ * catalogo vincolato per il modello AI: nessun ingrediente escluso può entrare nel piano.
  */
 export function filterProducts(options: FilterOptions): Product[] {
-  return products.filter(
-    (p) =>
-      matchesDietaryNeed(p, options.dietaryNeeds) &&
-      matchesNutritionalGoal(p, options.nutritionalGoal)
-  );
+  return products.filter((product) => matchesDietaryNeed(product, options.dietaryNeeds) && matchesNutritionalGoal(product, options.nutritionalGoal));
 }
 
 export function getAllProducts(): Product[] {
