@@ -74,7 +74,7 @@ export default function MealPlanScreen() {
     }
   };
 
-  if (!plan || shopping.invalid) return <Screen><View style={s.empty}>
+  if (!plan || shopping.invalid) return <Screen topPadding={8}><View style={s.empty}>
     <Text style={s.emptyEyebrow}>YOUR WEEKLY MEAL PLAN</Text><Text style={s.emptyTitle}>Your plan is waiting.</Text>
     <Text style={s.emptyText}>{shopping.invalid ? 'This older plan contains ingredients outside the catalog. Create a new plan to update it.' : error || 'Complete the setup to receive recipes tailored to your preferences.'}</Text>
     <Button title="Create my plan" onPress={() => router.replace('/budget')} />
@@ -83,13 +83,12 @@ export default function MealPlanScreen() {
   const selectIndex = (next: number) => setIndex(Math.max(0, Math.min(DAYS.length - 1, next)));
   const select = (day: DayPlan['day']) => selectIndex(DAYS.indexOf(day));
 
-  return <Screen green>
+  return <Screen green topPadding={8}>
     <View style={s.page}>
       <View style={s.hero}>
         <View style={s.eyebrowRow}><Text style={s.eyebrow}>YOUR WEEKLY MEAL PLAN</Text><Text style={s.weekCost}>€{shopping.total.toFixed(2)} <Text style={s.weekCostUnit}>/ week</Text></Text></View>
         <Text style={s.title}>Enjoy your meal!</Text><Text style={s.subtitle}>{plan.days.every((day) => day.meals.length === 1) ? 'One meal per day to stay within budget, with complete recipes and ready-to-shop ingredients.' : 'Two meals per day, with complete recipes and ready-to-shop ingredients.'}</Text>
         {plan.source === 'demo' && <View style={s.demoBadge}><Text style={s.demoBadgeText}>DEMO PLAN · SAMPLE RECIPES</Text></View>}
-        {plan.source === 'web' && <View style={s.demoBadge}><Text style={s.demoBadgeText}>{plan.distinctRecipes} DIFFERENT RECIPES · WEB SOURCES</Text></View>}
         <Pressable onPress={() => setShowShopping((visible) => !visible)} style={s.shoppingToggle} accessibilityRole="button" accessibilityLabel={showShopping ? 'Show recipes' : 'Show shopping list'}>
           <Text style={s.shoppingToggleText}>{showShopping ? 'View recipes' : 'View shopping list'}</Text>
         </Pressable>

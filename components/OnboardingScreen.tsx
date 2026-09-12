@@ -14,7 +14,6 @@ export function OnboardingScreen({
   loading,
   error,
   loadingMessage,
-  bodyOffset = 79,
 }: {
   title: string;
   step: number;
@@ -24,8 +23,6 @@ export function OnboardingScreen({
   loading?: boolean;
   error?: string | null;
   loadingMessage?: ReactNode;
-  /** Gap below the title: options start at y=254 in the 393×852 design. */
-  bodyOffset?: number;
 }) {
   const insets = useSafeAreaInsets();
   return (
@@ -34,7 +31,7 @@ export function OnboardingScreen({
         style={[
           s.canvas,
           {
-            paddingTop: (Platform.OS === "web" ? 62 : insets.top) + 20,
+            paddingTop: insets.top + 8,
             paddingBottom: (Platform.OS === "web" ? 34 : insets.bottom) + 23,
           },
         ]}
@@ -47,7 +44,7 @@ export function OnboardingScreen({
         {/* Only this middle region scrolls/centers; header and footer never move. */}
         <ScrollView
           style={s.body}
-          contentContainerStyle={[s.bodyContent, { paddingTop: bodyOffset }]}
+          contentContainerStyle={s.bodyContent}
           showsVerticalScrollIndicator={false}
         >
           {children}
@@ -92,11 +89,11 @@ const s = StyleSheet.create({
     marginTop: 20,
     color: colors.text,
   },
-  body: { flex: 1, marginBottom: spacing.lg },
+  body: { flex: 1 },
   bodyContent: {
     flexGrow: 1,
-    justifyContent: "flex-start",
-    paddingBottom: spacing.lg,
+    justifyContent: "center",
+    paddingVertical: spacing.lg,
   },
   error: {
     color: "#A3312B",
