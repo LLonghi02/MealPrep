@@ -7,6 +7,10 @@ export const RECIPE_HOSTS = [
   'ricettedalmondo.it', 'ilcuoreinpentola.it', 'recipetineats.com',
   'thekitchn.com', 'yummytoddlerfood.com', 'healthylittlefoodies.com',
   'forksoverknives.com', 'plantbasedonabudget.com', 'lazycatkitchen.com',
+  'feelgoodfoodie.net', 'wellplated.com', 'damndelicious.net', 'onceuponachef.com',
+  'tasteofhome.com', 'thepioneerwoman.com', 'natashaskitchen.com', 'delicious.com.au',
+  'cooking.nytimes.com', 'foodandwine.com', 'marieclaire.com', 'salepepe.it',
+  'misya.info', 'giallozafferano.com', 'agrodolce.it', 'lacucinaitaliana.it',
 ];
 
 export interface SourceRecipe {
