@@ -15,6 +15,27 @@ export interface RecipeMatch {
   missingIngredientsInSteps: string[]; ingredients: IngredientMatch[]; steps: string[];
 }
 
+function meetsDietaryNeeds(meal: Meal, input: GenerateMealPlanInput): boolean {
+  const needs = (Array.isArray(input.dietaryNeeds) ? input.dietaryNeeds : [input.dietaryNeeds]).filter((need) => need !== 'none');
+  return meal.ingredients.every(({ product }) => {
+    const department = product.department.name.toLowerCase();
+    const allergens = product.allergens.map((allergen) => `${allergen.id} ${allergen.name}`).join(' ').toLowerCase();
+    const name = product.name.toLowerCase();
+    const text = `${department} ${allergens} ${name}`;
+    const meat = /meat|chicken|beef|pork|lamb|turkey|ham|salami|sausage|carne|pollo|manzo|maiale|prosciutto|salame|salsiccia/.test(text);
+    const fish = /fish|seafood|shellfish|tuna|salmon|cod|sardine|anchov|pesce|tonno|salmone|merluzzo/.test(text);
+    const dairy = department.includes('dairy') || /milk|dairy|lactose|cheese|parmesan|mozzarella|butter|cream|formaggio|parmigiano|burro|panna/.test(text);
+    const egg = department.includes('egg') || /egg|uovo/.test(text);
+    const gluten = /gluten|wheat|barley|rye|flour|bread|pasta|glutine|grano|orzo|segale|farina|pane/.test(text);
+    if (needs.includes('vegan') && (meat || fish || dairy || egg)) return false;
+    if (needs.includes('veggie') && (meat || fish)) return false;
+    if (needs.includes('pescatarian') && meat) return false;
+    if (needs.includes('dairy_free') && dairy) return false;
+    if (needs.includes('gluten_free') && gluten) return false;
+    return true;
+  });
+}
+
 export function resolveWebRecipe(source: SourceRecipe, match: RecipeMatch, products: Product[]): Meal | null {
   if (match.url !== source.url || match.mealCompatible === false || !match.dietCompatible || !match.goalCompatible || !match.requestsCompatible
     || match.missingIngredientsInSteps.length || match.ingredients.length !== source.ingredients.length
@@ -91,7 +112,7 @@ Summarize the method in your own words in 2-8 concise steps, preserving temperat
     for (const item of match.ingredients) if ((!item.productId || !item.equivalent) && source.ingredients[item.index] && !isOptionalIngredient(source.ingredients[item.index])) onMissing(source.ingredients[item.index]);
     additional.forEach(onMissing);
     const meal = resolveWebRecipe(source, match, products);
-    if (meal) meals.push(meal);
+    if (meal && meetsDietaryNeeds(meal, input)) meals.push(meal);
   }
   if (retry.length) meals.push(...await matchRecipes(retry, products, input, onMissing, false));
   return meals;

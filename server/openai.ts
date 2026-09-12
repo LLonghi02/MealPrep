@@ -19,11 +19,19 @@ export function citedUrls(response: ModelResponse): string[] {
 export async function askModel(body: Record<string, unknown>): Promise<ModelResponse> {
   const key = process.env.OPENAI_API_KEY?.trim();
   if (!key) throw new Error('Configure OPENAI_API_KEY on the server to search for recipes.');
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: process.env.OPENAI_RECIPE_MODEL || 'gpt-4.1-mini', store: false, ...body }),
-    signal: AbortSignal.timeout(45000),
-  });
+  let response: Response;
+  try {
+    response = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: process.env.OPENAI_RECIPE_MODEL || 'gpt-4.1-mini', store: false, ...body }),
+      signal: AbortSignal.timeout(30000),
+    });
+  } catch (error) {
+    if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError' || /timed out|timeout/i.test(error.message))) {
+      throw new Error('Recipe search timed out. Please try again with fewer dietary restrictions or a slightly higher budget.');
+    }
+    throw error;
+  }
   if (!response.ok) {
     const details = await response.json().catch(() => null);
     console.error('Recipe API error:', response.status, details?.error?.message);

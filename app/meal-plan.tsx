@@ -34,7 +34,7 @@ export function ShoppingList({ items, total, onRemove, refreshing }: { items: Sh
     </View>
       <View style={s.totalRow}><Text style={s.totalRowLabel}>Estimated shopping total</Text><Text style={s.totalRowValue}>€{total.toFixed(2)}</Text></View>
       <Text style={s.shoppingHint}>Catalog prices for the packs needed across the week. Quantities are scaled to one serving per meal.</Text>
-      {items.some(item => item.product.priceSource) && <Text style={s.shoppingHint}>Includes D'Ambros catalog prices. Availability varies by delivery area; delivery fees are excluded.</Text>}
+      {items.some(item => item.product.priceSource) && <Text style={s.shoppingHint}>Includes verified retailer prices from the product catalog and Esselunga Online. Availability varies by delivery area; delivery fees are excluded.</Text>}
   </View>;
 }
 

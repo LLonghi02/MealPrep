@@ -3,13 +3,21 @@ import type { GenerateMealPlanInput } from './resolveMealPlan';
 
 export async function generateMealPlan(input: GenerateMealPlanInput): Promise<MealPlan> {
   // Expo Router resolves this URL to the development server on native and web.
-  const response = await fetch('/api/meal-plan', {
+  let response: Response;
+  try {
+    response = await fetch('/api/meal-plan', {
     method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({ budget: input.budget, dietaryNeeds: input.dietaryNeeds,
       nutritionalGoals: input.nutritionalGoals ?? [input.nutritionalGoal ?? 'none'], favoriteRecipes: input.favoriteRecipes || [],
       excludedProductIds: input.excludedProductIds || [], recipePreferences: input.recipePreferences || '' }),
-    signal: AbortSignal.timeout(90000),
-  });
+      signal: AbortSignal.timeout(120000),
+    });
+  } catch (error) {
+    if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError' || /timed out|timeout/i.test(error.message))) {
+      throw new Error('Recipe search timed out. Please try again with fewer dietary restrictions or a slightly higher budget.');
+    }
+    throw error;
+  }
   const contentType = response.headers.get('content-type') || '';
   if (!/\bapplication\/(?:[\w.-]+\+)?json\b/i.test(contentType)) {
     throw new Error('The recipe server returned a page instead of recipe data. Restart Expo from the MealPrep folder and reload the app.');

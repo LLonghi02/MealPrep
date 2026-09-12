@@ -21,14 +21,15 @@ export function eligibleProducts(input: GenerateMealPlanInput): Product[] {
     if (dietaryNeeds.includes('vegan') || dietaryNeeds.includes('dairy_free')) {
       if (/milk|latte|dairy|lactose/.test(allergens)) return false;
     }
-    if (dietaryNeeds.includes('vegan') && (department === 'Dairy & Eggs' || /egg|uova/.test(allergens))) return false;
+    if ((dietaryNeeds.includes('vegan') || dietaryNeeds.includes('dairy_free')) && department === 'Dairy & Eggs') return false;
+    if (dietaryNeeds.includes('vegan') && /egg|uova/.test(allergens)) return false;
     if (dietaryNeeds.includes('gluten_free') && /gluten|glutine/.test(allergens)) return false;
     return true;
   });
 }
 
 const aliases: Record<string, string> = {
-  spaghetti: 'pasta', penne: 'pasta', macaroni: 'pasta', linguine: 'pasta',
+  spaghetti: 'pasta', penne: 'pasta', macaroni: 'pasta', linguine: 'pasta', tubetti: 'pasta',
   chickpeas: 'chickpea', ceci: 'chickpea', garbanzo: 'chickpea',
   pomodori: 'tomato', pomodoro: 'tomato', tomatoes: 'tomato',
   parmigiano: 'parmesan', parmigiana: 'parmesan', spinaci: 'spinach',
@@ -51,18 +52,28 @@ const aliases: Record<string, string> = {
   courgettes: 'zucchini', aubergines: 'eggplant', potatoes: 'potato',
   peppercorns: 'pepper', scallions: 'onion', onions: 'onion',
   lemons: 'lemon',
-  uovo: 'egg', peperoni: 'pepper', peperone: 'pepper', rossi: 'red', rosso: 'red',
-  orzo: 'barley', farro: 'spelt', sedano: 'celery', salvia: 'sage',
+  uovo: 'egg', peperoni: 'pepper', peperone: 'pepper', peperoncino: 'chili', chilli: 'chili', chili: 'chili', rossi: 'red', rosso: 'red',
+  orzo: 'barley', farro: 'spelt', sedano: 'celery', celery: 'celery', gambo: 'celery', salvia: 'sage',
   timo: 'thyme', alloro: 'bay', menta: 'mint', origano: 'oregano',
   sweetcorn: 'corn', senape: 'mustard',
   capers: 'caper', capperi: 'caper', zucca: 'pumpkin', mozzarelle: 'mozzarella',
-  basil: 'basil', cheddar: 'cheddar', breadcrumbs: 'breadcrumb',
+  basil: 'basil', dill: 'dill', dills: 'dill', tarragon: 'tarragon', radishes: 'radish',
+  radish: 'radish', olives: 'olive', olive: 'olive', kalamata: 'olive',
+  squash: 'pumpkin', butternut: 'pumpkin', sunflower: 'oil', vegetable: 'oil', bicarbonate: 'soda', bicarbonato: 'soda', soda: 'soda',
+  cheddar: 'cheddar', breadcrumbs: 'breadcrumb', breadcrumb: 'breadcrumb',
+  parmesan: 'parmesan', parmigiano: 'parmesan', grana: 'parmesan',
 };
-const stop = new Set(['g', 'kg', 'ml', 'l', 'cup', 'cups', 'tbsp', 'tsp', 'of', 'and', 'or', 'a', 'the', 'to', 'for', 'with', 'di', 'e', 'con', 'fresh', 'organic', 'optional', 'chopped', 'grated', 'large', 'small', 'pack', 'sliced', 'diced', 'peeled', 'ripe', 'medium', 'finely', 'roughly', 'cubed', 'leaves', 'divided']);
+const stop = new Set(['g', 'kg', 'ml', 'l', 'cup', 'cups', 'tbsp', 'tsp', 'of', 'and', 'or', 'a', 'the', 'to', 'for', 'with', 'di', 'e', 'con', 'fresh', 'organic', 'optional', 'chopped', 'grated', 'large', 'small', 'pack', 'sliced', 'diced', 'peeled', 'ripe', 'medium', 'finely', 'roughly', 'cubed', 'leaves', 'stem', 'stalk', 'gambo', 'divided', 'shaved', 'shave', 'serve', 'serving', 'garnish', 'garnished', 'alternative', 'vegetarian', 'vegan', 'free', 'style', 'blend', 'pinch', 'pizzico', 'to taste', 'a piacere']);
 // A processed food containing an ingredient must not crowd out the ingredient itself.
 const forms = new Set(['ketchup', 'juice', 'sauce', 'puree', 'pesto', 'soup', 'burger', 'gnocchi', 'smoked', 'flavoured', 'flavored', 'stuffed', 'spread', 'jam', 'powder', 'dried', 'concentrate', 'pickled']);
 function tokens(value: string): string[] {
-  return value.toLowerCase().replace(/[^\p{L}\s]/gu, ' ').split(/\s+/).filter((word) => word.length > 1 && !stop.has(word)).map((word) => aliases[word] || word);
+  return value.toLowerCase().replace(/[^\p{L}\s]/gu, ' ').split(/\s+/).filter((word) => word.length > 1 && !stop.has(word)).map((word) => {
+    const normalized = aliases[word] || word;
+    if (aliases[word]) return normalized;
+    if (normalized.endsWith('ies') && normalized.length > 4) return `${normalized.slice(0, -3)}y`;
+    if (normalized.endsWith('s') && !normalized.endsWith('ss') && normalized.length > 3) return normalized.slice(0, -1);
+    return normalized;
+  });
 }
 
 export function productCandidates(line: string, products: Product[], limit = 12): Product[] {

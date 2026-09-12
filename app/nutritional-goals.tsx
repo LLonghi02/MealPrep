@@ -8,14 +8,6 @@ import { useAppStore } from "../lib/store";
 import type { NutritionalGoal } from "../lib/types";
 import { fonts } from "../theme";
 
-/*const OPTIONS: { value: NutritionalGoal; label: string; icon?: string }[] = [
-  { value: 'none', label: 'None' },
-  { value: 'high_protein', label: 'High protein', icon: '🥩' },
-  { value: 'low_sugar', label: 'Low sugar', icon: '🍯' },
-  { value: 'low_fat', label: 'Low fat', icon: '🫑' },
-  { value: 'low_carbs', label: 'Low carbs', icon: '🍝' },
-  { value: 'low_salt', label: 'Low salt', icon: '🧂' },
-];*/
 import { assets } from "@/assets/figma";
 import { ImageSourcePropType } from "react-native";
 
@@ -88,6 +80,11 @@ export default function NutritionalGoalsScreen() {
       disabled={!confirmed}
       loading={loading}
       error={error}
+      loadingMessage={loading ? (
+        <Text style={{ marginBottom: 6, fontFamily: fonts.light }} accessibilityLiveRegion="polite">
+          Searching recipes and matching them to your products…
+        </Text>
+      ) : null}
       onContinue={handleContinue}
     >
       <View style={optionLayout.grid}>
@@ -102,11 +99,6 @@ export default function NutritionalGoalsScreen() {
           </View>
         ))}
       </View>
-      {loading && (
-        <Text style={{ marginTop: 20, fontFamily: fonts.light }} accessibilityLiveRegion="polite">
-          Searching recipes and matching them to your products…
-        </Text>
-      )}
     </OnboardingScreen>
   );
 }

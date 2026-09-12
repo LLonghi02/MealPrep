@@ -7,7 +7,7 @@ import { assets } from '../assets/figma';
 export function ProgressHeader({ step, totalSteps, onBack }: { step: number; totalSteps: number; onBack?: () => void }) {
   const router = useRouter();
   // Figma's 86/172/258-point fills sit in a 315-point track.
-  const progress = Math.min(1, Math.max(0, (step / totalSteps) * (345 / 315)));
+  const progress = Math.min(1, Math.max(0, (step / totalSteps) * (344 / 315)));
   return <View style={s.row}>
     <Pressable accessibilityRole="button" accessibilityLabel="Go back" hitSlop={8}
       onPress={onBack ?? (() => router.canGoBack() ? router.back() : router.replace('/'))} style={s.back}>
@@ -26,4 +26,3 @@ const s = StyleSheet.create({
   fill: { height: 20, borderRadius: 99, backgroundColor: colors.primary },
   shine: { height: 6, marginTop: 3, marginHorizontal: 12, borderRadius: 99, backgroundColor: '#FFFFFF55' },
 });
-

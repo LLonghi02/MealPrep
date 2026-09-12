@@ -29,7 +29,10 @@ export function aggregateQuantities(quantities: string[]): string {
 export function buildShoppingList(plan: MealPlan): { items: ShoppingItem[]; total: number } {
   const map = new Map<string, ShoppingItem>();
   const unspecifiedProducts = new Set<string>();
-  const productsById = new Map(getAllProducts().map((product) => [product.id, product]));
+  const productsById = new Map([
+    ...getAllProducts(),
+    ...plan.days.flatMap((day) => day.meals).flatMap((meal) => meal.ingredients.map((ingredient) => ingredient.product)),
+  ].map((product) => [product.id, product]));
   for (const ingredient of plan.days.flatMap((day) => day.meals).flatMap((meal) => meal.ingredients)) {
     const product = productsById.get(ingredient.product?.id);
     if (!product || !Number.isFinite(product.price?.amount)) throw new Error('Shopping list ingredients must belong to the product catalog.');
