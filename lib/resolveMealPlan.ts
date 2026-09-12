@@ -36,7 +36,7 @@ function makeMeal(recipe: Recipe, id: string): Meal {
   const ingredients = recipe.ingredients.map((ingredient) => {
     const product = ingredient.productIds.map((productId) => products.get(productId))
       .find((product) => product && Number.isFinite(product.price?.amount) && product.price.amount >= 0);
-    if (!product) throw new Error(`Ingrediente non disponibile nel catalogo: ${ingredient.name}.`);
+    if (!product) throw new Error(`Ingredient unavailable in the catalog: ${ingredient.name}.`);
     return { id: ingredient.id, name: product.name, quantityLabel: ingredient.quantityLabel, product };
   });
   return {

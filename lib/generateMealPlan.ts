@@ -8,18 +8,18 @@ export async function generateMealPlan(input: GenerateMealPlanInput): Promise<Me
     body: JSON.stringify({ budget: input.budget, dietaryNeeds: input.dietaryNeeds,
       nutritionalGoals: input.nutritionalGoals ?? [input.nutritionalGoal ?? 'none'], favoriteRecipes: input.favoriteRecipes || [],
       excludedProductIds: input.excludedProductIds || [], recipePreferences: input.recipePreferences || '' }),
-    signal: AbortSignal.timeout(600000),
+    signal: AbortSignal.timeout(90000),
   });
   const contentType = response.headers.get('content-type') || '';
   if (!/\bapplication\/(?:[\w.-]+\+)?json\b/i.test(contentType)) {
-    throw new Error('Il server delle ricette non è disponibile: ha restituito una pagina invece dei dati. Riavvia Expo dalla cartella MealPrep e ricarica l’app.');
+    throw new Error('The recipe server returned a page instead of recipe data. Restart Expo from the MealPrep folder and reload the app.');
   }
   const result = await response.json().catch(() => {
-    throw new Error('Il server delle ricette ha restituito dati non validi. Riprova tra poco.');
+    throw new Error('The recipe server returned invalid data. Please try again shortly.');
   });
-  if (!response.ok) throw new Error(typeof result?.error === 'string' ? result.error : 'Impossibile cercare le ricette. Riprova.');
+  if (!response.ok) throw new Error(typeof result?.error === 'string' ? result.error : 'Unable to search for recipes. Please try again.');
   if (!result?.plan || !Array.isArray(result.plan.days) || result.plan.days.length !== 7 || !Number.isFinite(result.plan.weeklyCost)) {
-    throw new Error('Il server non ha restituito un piano completo. Riprova.');
+    throw new Error('The server did not return a complete meal plan. Please try again.');
   }
   return result.plan;
 }

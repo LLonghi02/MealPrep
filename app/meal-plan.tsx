@@ -23,7 +23,7 @@ export function ShoppingList({ items, total, onRemove, refreshing }: { items: Sh
       </View>
       <View style={s.totalBadge}><Text style={s.totalLabel}>WEEKLY TOTAL</Text><Text style={s.totalValue}>€{total.toFixed(2)}</Text></View>
     </View>
-    <Text style={s.shoppingHint}>{refreshing ? 'Updating your plan…' : 'Aggregated quantities for all 14 recipes. Remove anything you do not want.'}</Text>
+    <Text style={[s.shoppingHint, { fontFamily: fonts.light }]}>{refreshing ? 'Updating your plan…' : 'Aggregated quantities for your plan. Remove anything you do not want.'}</Text>
     <View style={s.shoppingItems}>
       {items.map((item) => <View key={item.id} style={s.shoppingRow}>
         <View style={s.shoppingDot} />
@@ -67,7 +67,7 @@ export default function MealPlanScreen() {
       state.excludeProduct(productId);
       setMealPlan(nextPlan);
     } catch (err) {
-      setGenerationError(err instanceof Error ? err.message : 'Impossibile aggiornare il piano.');
+      setGenerationError(err instanceof Error ? err.message : 'Unable to update the plan.');
     } finally {
       setGenerating(false);
       setRefreshing(false);
@@ -87,7 +87,7 @@ export default function MealPlanScreen() {
     <View style={s.page}>
       <View style={s.hero}>
         <View style={s.eyebrowRow}><Text style={s.eyebrow}>YOUR WEEKLY MEAL PLAN</Text><Text style={s.weekCost}>€{shopping.total.toFixed(2)} <Text style={s.weekCostUnit}>/ week</Text></Text></View>
-        <Text style={s.title}>Enjoy your meal!</Text><Text style={s.subtitle}>Two meals per day, with complete recipes and ready-to-shop ingredients.</Text>
+        <Text style={s.title}>Enjoy your meal!</Text><Text style={s.subtitle}>{plan.days.every((day) => day.meals.length === 1) ? 'One meal per day to stay within budget, with complete recipes and ready-to-shop ingredients.' : 'Two meals per day, with complete recipes and ready-to-shop ingredients.'}</Text>
         {plan.source === 'demo' && <View style={s.demoBadge}><Text style={s.demoBadgeText}>DEMO PLAN · SAMPLE RECIPES</Text></View>}
         {plan.source === 'web' && <View style={s.demoBadge}><Text style={s.demoBadgeText}>{plan.distinctRecipes} DIFFERENT RECIPES · WEB SOURCES</Text></View>}
         <Pressable onPress={() => setShowShopping((visible) => !visible)} style={s.shoppingToggle} accessibilityRole="button" accessibilityLabel={showShopping ? 'Show recipes' : 'Show shopping list'}>
@@ -99,8 +99,8 @@ export default function MealPlanScreen() {
       {showShopping ? <ShoppingList items={shopping.items} total={shopping.total} onRemove={removeFromShoppingList} refreshing={refreshing} /> : <View style={s.plannerCard}>
         <View style={s.cardHeader}><View><Text style={s.cardKicker}>TODAY'S PLAN</Text><Text style={s.cardTitle}>{NAMES[index]}</Text></View><View style={s.dayBadge}><Text style={s.dayBadgeText}>{index + 1} / 7</Text></View></View>
         <DayTabs days={DAYS} selectedDay={selectedDay} onSelect={select} />
-        <View style={s.daySummary}><Text style={s.mealCount}>2 meals planned</Text><Text style={s.dayHint}>Lunch + dinner</Text></View>
-        <ScrollView style={s.recipeScroller} contentContainerStyle={s.meals} nestedScrollEnabled showsVerticalScrollIndicator accessibilityLabel="Ricette del giorno">
+        <View style={s.daySummary}><Text style={s.mealCount}>{selectedPlan?.meals.length === 1 ? '1 meal planned' : '2 meals planned'}</Text><Text style={s.dayHint}>{selectedPlan?.meals.length === 1 ? 'One recipe per day to stay within budget' : 'Lunch + dinner'}</Text></View>
+        <ScrollView style={s.recipeScroller} contentContainerStyle={s.meals} nestedScrollEnabled showsVerticalScrollIndicator accessibilityLabel="Recipes for the day">
           {selectedPlan?.meals.map((meal) => <MealCard key={meal.id} meal={meal} />)}
         </ScrollView>
         <View style={s.navigation}>

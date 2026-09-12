@@ -84,8 +84,8 @@ export function BudgetSlider({
 const s = StyleSheet.create({
   container: {
     alignItems: "center",
-    paddingHorizontal: 4,
-    transform: [{ translateY: -6 }],
+    //paddingHorizontal: 4,
+    //transform: [{ translateY: -6 }],
   },
   amount: {
     fontFamily: fonts.semiBold,

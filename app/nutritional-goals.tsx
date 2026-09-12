@@ -6,6 +6,7 @@ import { OptionChip } from "../components/OptionChip";
 import { generateMealPlan } from "../lib/generateMealPlan";
 import { useAppStore } from "../lib/store";
 import type { NutritionalGoal } from "../lib/types";
+import { fonts } from "../theme";
 
 /*const OPTIONS: { value: NutritionalGoal; label: string; icon?: string }[] = [
   { value: 'none', label: 'None' },
@@ -102,8 +103,8 @@ export default function NutritionalGoalsScreen() {
         ))}
       </View>
       {loading && (
-        <Text style={{ marginTop: 20 }} accessibilityLiveRegion="polite">
-          Searching the web and checking recipes against your products. This may take a few minutes.
+        <Text style={{ marginTop: 20, fontFamily: fonts.light }} accessibilityLiveRegion="polite">
+          Searching recipes and matching them to your products…
         </Text>
       )}
     </OnboardingScreen>

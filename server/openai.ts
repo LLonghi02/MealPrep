@@ -18,19 +18,19 @@ export function citedUrls(response: ModelResponse): string[] {
 
 export async function askModel(body: Record<string, unknown>): Promise<ModelResponse> {
   const key = process.env.OPENAI_API_KEY?.trim();
-  if (!key) throw new Error('Configura OPENAI_API_KEY sul server per cercare ricette sul web.');
+  if (!key) throw new Error('Configure OPENAI_API_KEY on the server to search for recipes.');
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ model: process.env.OPENAI_RECIPE_MODEL || 'gpt-4.1-mini', store: false, ...body }),
-    signal: AbortSignal.timeout(120000),
+    signal: AbortSignal.timeout(45000),
   });
   if (!response.ok) {
     const details = await response.json().catch(() => null);
     console.error('Recipe API error:', response.status, details?.error?.message);
-    throw new Error(`Ricerca ricette non disponibile (${response.status}). Riprova tra poco.`);
+    throw new Error(`Recipe search is unavailable (${response.status}). Please try again shortly.`);
   }
   const result = await response.json();
-  if (result.status === 'incomplete' || result.error) throw new Error('La ricerca non è stata completata. Riprova.');
+  if (result.status === 'incomplete' || result.error) throw new Error('Recipe search did not complete. Please try again.');
   return result;
 }
 
