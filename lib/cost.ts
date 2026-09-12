@@ -26,6 +26,13 @@ export function ingredientPackFraction(ingredient: Ingredient): number {
   const parsedPack = content ? { amount: content.value, unit: content.unit.toLowerCase() } : amountAndUnit(ingredient.product.quantity || '');
   const pack = toBaseUnit(parsedPack.amount, parsedPack.unit);
   const requested = toBaseUnit(used.amount, used.unit);
+  // Egg packs often declare their count in the name while netContent is grams.
+  // Read that explicit count instead of charging one entire box per egg.
+  if (requested.unit === 'count' && /\beggs?\b|\buova\b/i.test(ingredient.product.name)) {
+    const label = `${ingredient.product.quantity || ''} ${ingredient.product.name}`;
+    const count = label.match(/\b(\d+)\s*(?:(?:fresh|organic|medium|large|small|barn)\s+)*(?:eggs?\b|uova\b|pcs\b|pieces?\b|labels\.piece)/i);
+    if (count && Number(count[1]) > 0) return requested.amount / Number(count[1]);
+  }
   if (requested.unit !== 'unknown' && requested.unit === pack.unit && pack.amount > 0) return requested.amount / pack.amount;
   // Use the declared unit price when the catalog omits pack weight/volume.
   const unitPrice = ingredient.product.unitPrice;

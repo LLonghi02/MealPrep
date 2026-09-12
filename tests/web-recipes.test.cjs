@@ -5,13 +5,15 @@ const ts = require('typescript');
 require.extensions['.ts'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true }, fileName: filename,
 }).outputText, filename);
-const { extractRecipe, fetchRecipe, isRecipeUrl } = require('../server/recipeSources.ts');
+const { extractRecipe, fetchRecipe, isRecipeUrl, isUnspecifiedQuantity } = require('../server/recipeSources.ts');
 const { resolveWebRecipe } = require('../server/recipeMatching.ts');
 const { productCandidates, eligibleProducts } = require('../server/catalog.ts');
 const { scheduleMeals, searchMealPlan, validatePreferences } = require('../server/mealSearch.ts');
 const { getAllProducts } = require('../lib/filterProducts.ts');
 const { buildShoppingList } = require('../lib/shopping.ts');
 const { generateMealPlan } = require('../lib/generateMealPlan.ts');
+const { explicitSourceQuantity } = require('../server/recipeQuantities.ts');
+const { ingredientPackFraction } = require('../lib/cost.ts');
 const input = { budget: 82, dietaryNeeds: 'none', nutritionalGoal: 'none' };
 const product = getAllProducts().find(p => p.id === '3560070500406');
 const source = { url: 'https://www.bbcgoodfood.com/recipes/test-pasta', name: 'Fixture pasta', sourceName: 'Good Food',
@@ -28,6 +30,34 @@ function html(index = 0) {
   }] })}</script>`;
 }
 
+test('fresh ingredients remain visible ahead of sauces and repeated brands', () => {
+  const products = getAllProducts();
+  const tomatoes = productCandidates('8 ripe plum tomatoes sliced', products);
+  assert.ok(tomatoes.some(p => p.id === 'dambros-vine-tomatoes-900g'));
+  assert.ok(!/ketchup|juice|sauce/i.test(tomatoes[0].name));
+  assert.ok(productCandidates('500 g potatoes peeled and sliced', products).some(p => p.id === '8002330013943'));
+  assert.ok(productCandidates('2 tbsp tomato ketchup', products).some(p => /ketchup/i.test(p.name)));
+  assert.equal(new Set(tomatoes.map(p => p.name.toLowerCase().trim())).size, tomatoes.length);
+});
+
+test('explicit source quantities are recovered without inventing handful weights', () => {
+  assert.equal(isUnspecifiedQuantity('grated parmesan to serve'), true);
+  assert.equal(isUnspecifiedQuantity('200 g parmesan'), false);
+  assert.deepEqual(explicitSourceQuantity('2 x 400g canned tomatoes'), {amount:800,unit:'g'});
+  assert.deepEqual(explicitSourceQuantity('½ kg potatoes'), {amount:500,unit:'g'});
+  assert.deepEqual(explicitSourceQuantity('3 small lemons'), {amount:3,unit:'piece'});
+  assert.equal(explicitSourceQuantity('handful of basil leaves'), null);
+  const meal = resolveWebRecipe(source, {...matching, ingredients:[{...matching.ingredients[0],amount:0}]}, getAllProducts());
+  assert.equal(meal.ingredients[0].quantityLabel, '125 g');
+});
+
+test('egg quantities use the count declared on a catalog pack even when net content is grams', () => {
+  const eggs = getAllProducts().find(p => p.id === '8003170094871');
+  assert.equal(ingredientPackFraction({product:eggs,amount:2,unit:'piece',quantityLabel:'2 pieces'}), .5);
+  const tenEggs = getAllProducts().find(p => p.id === '8001736010204');
+  assert.equal(ingredientPackFraction({product:tenEggs,amount:2,unit:'piece',quantityLabel:'2 pieces'}), .2);
+});
+
 test('publisher JSON-LD supplies the whole recipe, image and instructions', () => {
   const recipe = extractRecipe(html(), source.url);
   assert.equal(recipe.servings, 4);
@@ -36,6 +66,7 @@ test('publisher JSON-LD supplies the whole recipe, image and instructions', () =
   assert.deepEqual(recipe.ingredients, source.ingredients);
   assert.deepEqual(recipe.instructions, ['Cook pasta.', 'Drain and serve.']);
   assert.equal(extractRecipe('<html>No recipe here</html>', source.url), null);
+  assert.equal(extractRecipe(html().replace('"recipeYield":4', '"recipeCategory":"Condiment","recipeYield":4'), source.url), null);
   assert.equal(extractRecipe(html() + html(1), source.url), null);
   assert.equal(extractRecipe(html().replace(JSON.stringify({url:source.imageUrl}), 'null'), source.url), null);
 });
@@ -59,6 +90,7 @@ test('matching preserves source identity, scales servings and requires real cata
   assert.equal(meal.imageUrl, source.imageUrl);
   assert.equal(meal.recipeUrl, source.url);
   for (const field of ['dietCompatible', 'goalCompatible', 'requestsCompatible']) assert.equal(resolveWebRecipe(source, { ...matching, [field]: false }, getAllProducts()), null);
+  assert.equal(resolveWebRecipe(source, { ...matching, mealCompatible: false }, getAllProducts()), null);
   assert.equal(resolveWebRecipe(source, { ...matching, ingredients: [] }, getAllProducts()), null);
   assert.equal(resolveWebRecipe(source, { ...matching, ingredients: [{ ...matching.ingredients[0], productId: 'invented' }] }, getAllProducts()), null);
   assert.equal(resolveWebRecipe(source, matching, []), null);
@@ -86,6 +118,29 @@ test('product exclusions and known allergens apply before searching', () => {
   assert.deepEqual(multiple.nutritionalGoals, ['low_salt', 'high_protein']);
 });
 
+test('catalog matching recognizes Italian produce, pine nuts and peppercorns', () => {
+  const products = getAllProducts();
+  assert.ok(productCandidates('250 g pomodorini ciliegino', products).some(p => p.name === 'Cherry tomatoes'));
+  assert.ok(productCandidates('zest and juice 1 lemon', products).some(p => p.name === 'Lemons'));
+  assert.ok(productCandidates('10 g pinoli', products).some(p => /pine nuts/i.test(p.name)));
+  assert.ok(productCandidates('1 tsp black pepper', products).some(p => p.name === 'Black peppercorns'));
+});
+
+test('unspecified source seasoning keeps a priced product and reserves one pack across the week', () => {
+  const salt = getAllProducts().find(p => p.name === 'Fine iodized cooking salt');
+  const seasonedSource = {...source, ingredients: [...source.ingredients, 'salt to taste']};
+  const match = {...matching, ingredients: [...matching.ingredients, {index:1,productId:salt.id,equivalent:true,amount:0,unit:'g'}]};
+  const meal = resolveWebRecipe(seasonedSource, match, getAllProducts());
+  assert.ok(meal);
+  assert.equal(meal.ingredients[1].quantityLabel, 'q.b.');
+  assert.equal(meal.ingredients[1].product.id, salt.id);
+  const list = buildShoppingList({days:[{day:'Mon',meals:Array(14).fill(meal)}],weeklyCost:0});
+  const row = list.items.find(item => item.id === salt.id);
+  assert.equal(row.packs, 1);
+  assert.equal(row.totalPrice, salt.price.amount);
+  assert.equal(resolveWebRecipe(seasonedSource, {...match,ingredients:[matching.ingredients[0]]}, getAllProducts()), null);
+});
+
 test('weekly scheduler guarantees variety and counts sufficient catalog packs within budget', () => {
   const base = resolveWebRecipe(source, matching, getAllProducts());
   const meals = Array.from({ length: 14 }, (_, index) => ({ ...base, name: `Fixture ${index}`, recipeId: `${source.url}-${index}`, recipeUrl: `${source.url}-${index}` }));
@@ -103,6 +158,11 @@ test('weekly scheduler guarantees variety and counts sufficient catalog packs wi
   const counts = new Map();
   seven.days.flatMap(d => d.meals).forEach(m => counts.set(m.recipeId, (counts.get(m.recipeId) || 0) + 1));
   assert.ok([...counts.values()].every(count => count <= 2));
+  const extraProduct = getAllProducts().find(p => p.price.amount === 4.09 && p.id !== product.id);
+  const expensive = {...base, name:'Extra dish', recipeId:'extra', ingredients:[{id:extraProduct.id,name:extraProduct.name,product:extraProduct,quantityLabel:'1 pack'}]};
+  const limited = scheduleMeals([...meals.slice(0,7), expensive], {...input,budget:10}, () => 0);
+  assert.ok(limited, 'seven affordable dishes must still work when an eighth exhausts the budget');
+  assert.equal(limited.distinctRecipes, 7);
 });
 
 test('search pipeline discovers new URLs, reads pages, maps products and respects all preference fields', async () => {

@@ -9,10 +9,11 @@ export function outputText(response: ModelResponse): string {
 }
 
 export function citedUrls(response: ModelResponse): string[] {
-  return [...new Set((response.output || []).flatMap((item) => [
-    ...(item.action?.sources || []).map((source) => source.url),
-    ...(item.content || []).flatMap((content) => (content.annotations || []).map((annotation) => annotation.url || '')),
-  ]).filter(Boolean))];
+  const output = response.output || [];
+  return [...new Set([
+    ...output.flatMap(item => (item.content || []).flatMap(content => (content.annotations || []).map(annotation => annotation.url || ''))),
+    ...output.flatMap(item => (item.action?.sources || []).map(source => source.url)),
+  ].filter(Boolean))];
 }
 
 export async function askModel(body: Record<string, unknown>): Promise<ModelResponse> {

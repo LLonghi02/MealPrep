@@ -44,10 +44,23 @@ const aliases: Record<string, string> = {
   carote: 'carrot', carota: 'carrot', limone: 'lemon', limoni: 'lemon',
   mandorle: 'almond', almonds: 'almond', noci: 'walnut', walnuts: 'walnut',
   funghi: 'mushroom', mushrooms: 'mushroom', pane: 'bread',
-  pangrattato: 'breadcrumbs', prezzemolo: 'parsley', rosmarino: 'rosemary',
+  pangrattato: 'breadcrumb', prezzemolo: 'parsley', rosmarino: 'rosemary',
   pelati: 'tomato', passata: 'tomato', mais: 'corn', brodo: 'stock',
+  pinoli: 'pine', pomodorini: 'tomato', ciliegino: 'cherry', ciliegini: 'cherry',
+  lenticchia: 'lentil', zucchina: 'zucchini', melanzana: 'eggplant',
+  courgettes: 'zucchini', aubergines: 'eggplant', potatoes: 'potato',
+  peppercorns: 'pepper', scallions: 'onion', onions: 'onion',
+  lemons: 'lemon',
+  uovo: 'egg', peperoni: 'pepper', peperone: 'pepper', rossi: 'red', rosso: 'red',
+  orzo: 'barley', farro: 'spelt', sedano: 'celery', salvia: 'sage',
+  timo: 'thyme', alloro: 'bay', menta: 'mint', origano: 'oregano',
+  sweetcorn: 'corn', senape: 'mustard',
+  capers: 'caper', capperi: 'caper', zucca: 'pumpkin', mozzarelle: 'mozzarella',
+  basil: 'basil', cheddar: 'cheddar', breadcrumbs: 'breadcrumb',
 };
-const stop = new Set(['g', 'kg', 'ml', 'l', 'cup', 'cups', 'tbsp', 'tsp', 'of', 'and', 'or', 'a', 'the', 'to', 'for', 'with', 'di', 'e', 'con', 'fresh', 'organic', 'optional', 'chopped', 'grated', 'large', 'small', 'pack']);
+const stop = new Set(['g', 'kg', 'ml', 'l', 'cup', 'cups', 'tbsp', 'tsp', 'of', 'and', 'or', 'a', 'the', 'to', 'for', 'with', 'di', 'e', 'con', 'fresh', 'organic', 'optional', 'chopped', 'grated', 'large', 'small', 'pack', 'sliced', 'diced', 'peeled', 'ripe', 'medium', 'finely', 'roughly', 'cubed', 'leaves', 'divided']);
+// A processed food containing an ingredient must not crowd out the ingredient itself.
+const forms = new Set(['ketchup', 'juice', 'sauce', 'puree', 'pesto', 'soup', 'burger', 'gnocchi', 'smoked', 'flavoured', 'flavored', 'stuffed', 'spread', 'jam', 'powder', 'dried', 'concentrate', 'pickled']);
 function tokens(value: string): string[] {
   return value.toLowerCase().replace(/[^\p{L}\s]/gu, ' ').split(/\s+/).filter((word) => word.length > 1 && !stop.has(word)).map((word) => aliases[word] || word);
 }
@@ -55,11 +68,13 @@ function tokens(value: string): string[] {
 export function productCandidates(line: string, products: Product[], limit = 12): Product[] {
   const terms = new Set(tokens(line));
   return products.map((product) => {
-    const words = tokens(product.name);
+    const words = [...new Set(tokens(product.name))];
     const matches = words.filter((word) => terms.has(word)).length;
     const extra = words.filter((word) => !terms.has(word)).length;
-    return { product, score: matches ? matches * 10 - extra : -1000 };
+    const unexpectedForms = words.filter((word) => forms.has(word) && !terms.has(word)).length;
+    return { product, score: matches ? matches * 10 - extra - unexpectedForms * 8 : -1000 };
   }).filter((row) => row.score > 0).sort((a, b) => b.score - a.score || a.product.price.amount - b.product.price.amount)
+    .filter((row, index, rows) => rows.findIndex((other) => other.product.name.toLowerCase().trim() === row.product.name.toLowerCase().trim()) === index)
     .slice(0, limit).map((row) => row.product);
 }
 

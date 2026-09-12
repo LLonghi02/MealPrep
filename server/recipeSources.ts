@@ -19,6 +19,16 @@ export function isOptionalIngredient(line: string): boolean {
   return /\boptional\b|\bfacoltativ[oaie]\b/i.test(line);
 }
 
+export function isUnspecifiedQuantity(line: string): boolean {
+  return /\bto taste\b|\bas needed\b|\bq\.?\s*b\.?|quantity not specified|\bdrizzl\w*\b|\bsqueeze\b|\bhandful\b|\bbunch\b|\bpinch\b|\bfew sprigs\b/i.test(line)
+    || (!/[\d½¼¾⅓⅔⅛⅜⅝⅞]/.test(line) && !/\b(one|two|three|four|five|six|uno|una|due|tre|quattro)\b/i.test(line));
+}
+
+export function unspecifiedQuantityLabel(line: string): string {
+  const native = line.match(/(?:small |large |generous )?(?:handful|bunch)|(?:a )?drizzle|(?:a )?squeeze|(?:a )?pinch|few sprigs/i);
+  return native ? native[0] : 'q.b.';
+}
+
 export function isRecipeUrl(value: string): boolean {
   try {
     const url = new URL(value);
@@ -62,6 +72,9 @@ export function extractRecipe(html: string, url: string): SourceRecipe | null {
   // Multiple recipe cards can describe different dishes on a collection page.
   if (nodes.length !== 1) return null;
   const node = nodes[0];
+  const categories = [node.recipeCategory].flat().map(plain).join(' ').toLowerCase();
+  if (/condiment|sauce|dessert|drink|dolci|bevande/.test(categories)
+    && !/main|lunch|dinner|primi|secondi|piatto unico/.test(categories)) return null;
   const ingredients = Array.isArray(node.recipeIngredient) ? node.recipeIngredient.map(plain).filter(Boolean) : [];
   const steps = instructions(node.recipeInstructions).filter(Boolean);
   const image = [node.image].flat()[0];

@@ -163773,5 +163773,581 @@
         "name": "Glutine"
       }
     ]
+  },
+  {
+    "id": "dambros-0000184686",
+    "barcode": "",
+    "name": "Fine iodized cooking salt",
+    "brand": "Noi & Voi",
+    "department": {
+      "id": "condimenti",
+      "name": "Oil, Vinegar & Condiments"
+    },
+    "category": null,
+    "quantity": "1000 g",
+    "netContent": {
+      "value": 1000,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 0.59,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 0.59,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/041501/sale",
+      "productUrl": "https://dambros.it/online/prodotto/0000184686/sale-da-cucina-iodato-fino-1kg",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-0000154412",
+    "barcode": "",
+    "name": "White garlic",
+    "brand": "",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "200 g",
+    "netContent": {
+      "value": 200,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.89,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 9.45,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100401/aglio-cipolle",
+      "productUrl": "https://dambros.it/online/prodotto/0000154412/aglio-bianco-italia-4060-200g",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-0000216648",
+    "barcode": "",
+    "name": "Lemons",
+    "brand": "",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "950 g",
+    "netContent": {
+      "value": 950,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.89,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 1.99,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/prodotto/0000216648/limoni-confezionati",
+      "productUrl": "https://dambros.it/online/prodotto/0000216648/limoni-confezionati",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-0000190254",
+    "barcode": "",
+    "name": "Cherry tomatoes",
+    "brand": "",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "800 g",
+    "netContent": {
+      "value": 800,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 3.99,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 4.99,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100403/pomodori",
+      "productUrl": "https://dambros.it/online/prodotto/0000190254/pomodoro-ciliegino-confezionato",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-basil-30g",
+    "barcode": "",
+    "name": "Fresh basil",
+    "brand": "Terra & Vita",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "30 g",
+    "netContent": {
+      "value": 30,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.3,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 43.33,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "productUrl": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-parsley-100g",
+    "barcode": "",
+    "name": "Fresh parsley",
+    "brand": "Terra & Vita",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "100 g",
+    "netContent": {
+      "value": 100,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.0,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 10.0,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "productUrl": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-coriander-20g",
+    "barcode": "",
+    "name": "Fresh coriander cilantro",
+    "brand": "Terra & Vita",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "20 g",
+    "netContent": {
+      "value": 20,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.0,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 50.0,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "productUrl": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-chives-20g",
+    "barcode": "",
+    "name": "Fresh chives",
+    "brand": "Terra & Vita",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "20 g",
+    "netContent": {
+      "value": 20,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.0,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 50.0,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "productUrl": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-mint-30g",
+    "barcode": "",
+    "name": "Fresh mint",
+    "brand": "Carlo Ornaghi",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "30 g",
+    "netContent": {
+      "value": 30,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.4,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 46.67,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "productUrl": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-rosemary-30g",
+    "barcode": "",
+    "name": "Fresh rosemary",
+    "brand": "Carlo Ornaghi",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "30 g",
+    "netContent": {
+      "value": 30,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.3,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 43.33,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "productUrl": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-bay-leaves-30g",
+    "barcode": "",
+    "name": "Fresh bay leaves",
+    "brand": "Carlo Ornaghi",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "30 g",
+    "netContent": {
+      "value": 30,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.3,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 43.33,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "productUrl": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-sage-30g",
+    "barcode": "",
+    "name": "Fresh sage",
+    "brand": "Carlo Ornaghi",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "30 g",
+    "netContent": {
+      "value": 30,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.3,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 43.33,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "productUrl": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-thyme-30g",
+    "barcode": "",
+    "name": "Fresh thyme",
+    "brand": "Carlo Ornaghi",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "30 g",
+    "netContent": {
+      "value": 30,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.3,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 43.33,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "productUrl": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-oregano-30g",
+    "barcode": "",
+    "name": "Fresh oregano",
+    "brand": "Carlo Ornaghi",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "30 g",
+    "netContent": {
+      "value": 30,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 1.3,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 43.33,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "productUrl": "https://dambros.it/online/catalogo/c/100407/erbe-aromatiche",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-vine-tomatoes-900g",
+    "barcode": "",
+    "name": "Fresh vine tomatoes",
+    "brand": "",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "900 g",
+    "netContent": {
+      "value": 900,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 3.77,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 4.19,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100403/pomodori",
+      "productUrl": "https://dambros.it/online/catalogo/c/100403/pomodori",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
+  },
+  {
+    "id": "dambros-white-onions-1kg",
+    "barcode": "",
+    "name": "White onions",
+    "brand": "",
+    "department": {
+      "id": "ortofrutta",
+      "name": "Fruits & Vegetables"
+    },
+    "category": null,
+    "quantity": "1000 g",
+    "netContent": {
+      "value": 1000,
+      "unit": "g"
+    },
+    "price": {
+      "amount": 2.18,
+      "currency": "EUR"
+    },
+    "unitPrice": {
+      "amount": 2.18,
+      "unit": "kg"
+    },
+    "nutrition": null,
+    "nutriScore": null,
+    "novaGroup": null,
+    "labels": [],
+    "allergens": [],
+    "priceSource": {
+      "retailer": "D'Ambros",
+      "url": "https://dambros.it/online/catalogo/c/100401/aglio-cipolle",
+      "productUrl": "https://dambros.it/online/catalogo/c/100401/aglio-cipolle",
+      "observedAt": "2026-09-12",
+      "note": "Published catalog price; availability and final price depend on delivery area. Shipping excluded."
+    }
   }
 ]

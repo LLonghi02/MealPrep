@@ -30,6 +30,7 @@ export interface Product {
   quantity: string;
   netContent: { value: number; unit: string } | null;
   price: { amount: number; currency: string };
+  priceSource?: { retailer: string; url: string; productUrl: string; observedAt: string; note: string };
   unitPrice: { amount: number; unit: string };
   nutrition: {
     energyKcal100g: number;
@@ -55,6 +56,7 @@ export interface Ingredient {
   amount?: number;
   unit?: 'g' | 'ml' | 'piece';
   sourceIngredient?: string;
+  quantityUnspecified?: boolean;
 }
 
 export interface Meal {
